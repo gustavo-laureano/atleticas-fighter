@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://dekx4jykymcaf"]
+
+[ext_resource type="Texture2D" uid="uid://borrwwy16h08g" path="res://objects/hadoken/Hadouken.png" id="1_0rqex"]
+[ext_resource type="Script" uid="uid://br8qbx4if6mpt" path="res://objects/hadoken/hadoken.gd" id="1_uypl6"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8imwq"]
+size = Vector2(116, 112)
+
+[node name="Hadoken" type="Area2D" unique_id=962840920]
+script = ExtResource("1_uypl6")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=464003299]
+position = Vector2(62.000004, 50)
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("1_0rqex")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=806864334]
+position = Vector2(58, 56)
+shape = SubResource("RectangleShape2D_8imwq")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

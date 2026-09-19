@@ -1,0 +1,49 @@
+[gd_scene format=3 uid="uid://bs0o1hsjl06og"]
+
+[ext_resource type="Script" uid="uid://be1ylmfgvqwj7" path="res://ui/main_menu/main_menu.gd" id="1_0fbet"]
+
+[sub_resource type="GDScript" id="GDScript_62e2m"]
+script/source = "extends Button
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta: float) -> void:
+	pass
+"
+
+[node name="Control" type="Control" unique_id=1297209604]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+rotation = 0.0011624295
+script = ExtResource("1_0fbet")
+
+[node name="Button_play" type="Button" parent="." unique_id=1630857803]
+layout_mode = 0
+offset_left = 448.2229
+offset_top = 191.4791
+offset_right = 676.2229
+offset_bottom = 289.47913
+text = "Jogar"
+script = SubResource("GDScript_62e2m")
+
+[node name="Button_quit" type="Button" parent="." unique_id=1641084267]
+layout_mode = 0
+offset_left = 448.3624
+offset_top = 311.479
+offset_right = 676.3623
+offset_bottom = 409.479
+rotation = 0.0022857273
+text = "Sair
+"
+
+[connection signal="pressed" from="Button_play" to="." method="_on_button_play_pressed"]
+[connection signal="pressed" from="Button_quit" to="." method="_on_button_quit_pressed"]

@@ -1,0 +1,26 @@
+[gd_scene format=3 uid="uid://ispfrgluegis"]
+
+[ext_resource type="Script" uid="uid://bi5gyiniet0xu" path="res://ui/hud/hud.gd" id="1_kdjhy"]
+[ext_resource type="Texture2D" uid="uid://bwk2f2jymbrxq" path="res://ui/hud/health_bar.png" id="1_m7ell"]
+
+[node name="CanvasLayer" type="CanvasLayer" unique_id=613537073]
+script = ExtResource("1_kdjhy")
+
+[node name="ColorRect_background" type="ColorRect" parent="." unique_id=125216100]
+offset_left = 42.999985
+offset_top = 52.0
+offset_right = 333.0
+offset_bottom = 92.0
+color = Color(0, 0, 0, 1)
+
+[node name="ColorRect_fill" type="ColorRect" parent="." unique_id=522702029]
+offset_left = 42.999985
+offset_top = 52.0
+offset_right = 333.0
+offset_bottom = 92.0
+color = Color(0.91764706, 0.34901962, 0, 1)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=597352980]
+position = Vector2(187.99998, 70)
+scale = Vector2(0.16022098, 0.160221)
+texture = ExtResource("1_m7ell")

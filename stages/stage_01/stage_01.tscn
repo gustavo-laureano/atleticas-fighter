@@ -1,0 +1,35 @@
+[gd_scene format=3 uid="uid://cwf2goovxx16m"]
+
+[ext_resource type="PackedScene" uid="uid://ispfrgluegis" path="res://ui/hud/hud.tscn" id="1_4jg2b"]
+[ext_resource type="Texture2D" uid="uid://jmdiifs62p0s" path="res://stages/stage_01/uemg3.png" id="1_icgdk"]
+[ext_resource type="Script" uid="uid://duvqsc0r16fqd" path="res://stages/stage_01/ground_collision.gd" id="2_1r7rg"]
+[ext_resource type="PackedScene" uid="uid://dekx4jykymcaf" path="res://objects/hadoken/hadoken.tscn" id="5_l0s0l"]
+[ext_resource type="Script" path="res://stages/stage_01/stage_01.gd" id="6_stage"]
+[ext_resource type="Resource" path="res://characters/nhagare/nhagare_data.tres" id="7_nhagare"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_86ap7"]
+size = Vector2(3262, 81.25)
+
+[node name="Cena1" type="Node2D" unique_id=1256584666]
+script = ExtResource("6_stage")
+default_character = ExtResource("7_nhagare")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1829372959]
+position = Vector2(576, 344)
+scale = Vector2(0.75522155, 0.7265556)
+texture = ExtResource("1_icgdk")
+
+[node name="CanvasLayer" parent="." unique_id=613537073 instance=ExtResource("1_4jg2b")]
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1962792205]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=50812212]
+position = Vector2(576, 607.625)
+shape = SubResource("RectangleShape2D_86ap7")
+script = ExtResource("2_1r7rg")
+
+[node name="Hadoken" parent="." unique_id=962840920 instance=ExtResource("5_l0s0l")]
+position = Vector2(296, 296)
+
+[node name="PlayerSpawn" type="Marker2D" parent="."]
+position = Vector2(559.00006, 340)
