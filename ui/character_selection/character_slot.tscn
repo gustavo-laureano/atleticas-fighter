@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://psaxilkxy6qw"]
+
+[ext_resource type="Script" uid="uid://df0swac0lt87" path="res://ui/character_selection/character_slot.gd" id="1_slot"]
+[ext_resource type="Texture2D" uid="uid://btneuo56t18k0" path="res://characters/crocks/idle/idle.png" id="2_placeholder"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_normal"]
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.12, 0.12, 0.18, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.3, 0.3, 0.38, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_focus"]
+draw_center = false
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(1, 0.8, 0.1, 1)
+
+[node name="CharacterSlot" type="Button" unique_id=1543211728]
+custom_minimum_size = Vector2(200, 200)
+offset_right = 522.0
+offset_bottom = 522.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_normal")
+theme_override_styles/focus = SubResource("StyleBoxFlat_focus")
+icon = ExtResource("2_placeholder")
+icon_alignment = 1
+expand_icon = true
+script = ExtResource("1_slot")
