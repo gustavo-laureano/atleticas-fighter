@@ -1,0 +1,36 @@
+{
+  "group_id": "7d331813-6149-4bba-b8be-8eb827cc9ddf",
+  "states": [
+	{
+	  "character": {
+		"id": "bda3afbe-a6f5-437c-b7dd-a07ba7f994bc",
+		"name": "Idle",
+		"prompt": "**CHARACTER DESIGN \u2014 ANTHROPOMORPHIC ALLIGATOR**\n\nCreate a full-body video game character of a powerful anthropomorphic alligator.\n\nThe character is a large, muscular humanoid alligator with an imposing physique, broad shoulders, enormous arms, defined chest, powerful abdomen, thick thighs and muscular legs. He stands upright on two legs with a confident, intimidating posture and his arms crossed across his chest.\n\nHis head is distinctly that of an alligator: long and wide snout, large visible teeth, sharp predatory eyes, pronounced brow, rugged scales and a strong jaw. His expression is confident, aggressive and slightly arrogant, like a powerful rival or boss character.\n\nThe body is covered in detailed dark charcoal-gray scales with subtle variations in tone. The belly, chest and underside of the tail have warm orange-golden scales, creating a strong contrast with the dark body.\n\nThe character has a long, thick alligator tail extending behind him and curving naturally toward the ground. The tail is muscular and covered with dark scales on the upper side and orange scales underneath.\n\nLarge reptilian hands with sharp claws. Powerful feet with three prominent claws. Clearly reptilian anatomy while maintaining a humanoid, muscular silhouette.\n\n**Visual style:**\n16-bit SNES-era pixel art, classic Japanese RPG character sprite aesthetic, highly detailed pixel clusters, crisp square pixels, hard edges, no anti-aliasing, limited color palette, carefully placed highlights and shadows, subtle pixel dithering, strong dark outlines, expressive silhouette, retro fighting-game character design.\n\n**Composition:**\nFull-body character, centered, entire body visible from head to feet and complete tail, symmetrical presentation, standing against a simple solid dark teal background. No scenery, no weapons, no text, no logos, no additional characters.\n\nThe final character should feel like an iconic playable fighting-game character: intimidating, muscular, recognizable, charismatic an",
+		"size": {
+		  "width": 256,
+		  "height": 256
+		},
+		"template_id": "mannequin",
+		"directions": 8,
+		"view": "low top-down",
+		"created_at": "2026-08-22T10:46:21.459771+00:00"
+	  },
+	  "folder": "Idle",
+	  "frames": {
+		"rotations": {
+		  "south": "Idle/rotations/south.png",
+		  "south-east": "Idle/rotations/south-east.png",
+		  "east": "Idle/rotations/east.png",
+		  "north-east": "Idle/rotations/north-east.png",
+		  "north": "Idle/rotations/north.png",
+		  "north-west": "Idle/rotations/north-west.png",
+		  "west": "Idle/rotations/west.png",
+		  "south-west": "Idle/rotations/south-west.png"
+		},
+		"animations": {}
+	  }
+	}
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-08-22T10:49:48.176416"
+}
