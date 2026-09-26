@@ -2,9 +2,12 @@
 
 [ext_resource type="Script" uid="uid://dafj58miq0df6" path="res://characters/bravios/bravios.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://pm3h5bkcw7ji" path="res://characters/bravios/idle/idle.png" id="2_idle"]
+[ext_resource type="Texture2D" uid="uid://chsir17twka10" path="res://characters/bravios/combo/2.png" id="2_srksn"]
+[ext_resource type="Texture2D" uid="uid://hxmnsporj2lp" path="res://characters/bravios/combo/3.png" id="3_hpey6"]
 [ext_resource type="Texture2D" uid="uid://dnwobiq16xv5f" path="res://characters/bravios/walk/1.png" id="3_walk1"]
 [ext_resource type="Texture2D" uid="uid://dqchlstr0l7h1" path="res://characters/bravios/walk/2.png" id="3_walk2"]
 [ext_resource type="Texture2D" uid="uid://b71cvkqpcbbh4" path="res://characters/bravios/walk/3.png" id="3_walk3"]
+[ext_resource type="Texture2D" uid="uid://wil62ltmtbm7" path="res://characters/bravios/combo/1.png" id="4_1b88p"]
 [ext_resource type="Texture2D" uid="uid://bt2dde41tdxbs" path="res://characters/bravios/jump/1.png" id="4_jump1"]
 [ext_resource type="Texture2D" uid="uid://c2fqs52wmdved" path="res://characters/bravios/jump/2.png" id="4_jump2"]
 [ext_resource type="Texture2D" uid="uid://d32a70twxcbvt" path="res://characters/bravios/die/1.png" id="5_die1"]
@@ -14,13 +17,49 @@
 [ext_resource type="Texture2D" uid="uid://bhe847gxgvqvh" path="res://characters/bravios/sneak/1.png" id="6_sneak1"]
 [ext_resource type="Texture2D" uid="uid://d0r221cu74r74" path="res://characters/bravios/sneak/2.png" id="6_sneak2"]
 [ext_resource type="Texture2D" uid="uid://c17y8obh5rbfb" path="res://characters/bravios/sneak/3.png" id="6_sneak3"]
+[ext_resource type="Texture2D" uid="uid://cxussrynlu3vm" path="res://characters/bravios/sneak-attack/1.png" id="10_2nx67"]
+[ext_resource type="Texture2D" uid="uid://b1pffg4xmdh6j" path="res://characters/bravios/sneak-attack/2.png" id="11_rfkog"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q2skg"]
+atlas = ExtResource("2_srksn")
+region = Rect2(0, 0, 404, 345)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_aacyv"]
+atlas = ExtResource("3_hpey6")
+region = Rect2(0, 0, 404, 345)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rsmx8"]
+atlas = ExtResource("4_1b88p")
+region = Rect2(0, 0, 404, 345)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_jatsn"]
 atlas = ExtResource("5_lj1o8")
 region = Rect2(0, 0, 404, 345)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_ghrbt"]
+atlas = ExtResource("10_2nx67")
+region = Rect2(0, 0, 404, 345)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_srksn"]
+atlas = ExtResource("11_rfkog")
+region = Rect2(0, 0, 404, 345)
+
 [sub_resource type="SpriteFrames" id="SpriteFrames_86ap7"]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q2skg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_aacyv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rsmx8")
+}],
+"loop": 1,
+"name": &"combo",
+"speed": 5.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": ExtResource("5_die1")
@@ -72,6 +111,17 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_ghrbt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_srksn")
+}],
+"loop": 0,
+"name": &"sneak-attack",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": ExtResource("6_sneak1")
 }, {
 "duration": 1.0,
@@ -107,7 +157,7 @@ script = ExtResource("1_script")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=241752309]
 sprite_frames = SubResource("SpriteFrames_86ap7")
-animation = &"fall"
+animation = &"sneak-attack"
 offset = Vector2(0, -172.5)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1192811983]
