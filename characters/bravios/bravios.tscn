@@ -48,13 +48,13 @@ region = Rect2(0, 0, 404, 345)
 animations = [{
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_rsmx8")
+}, {
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_q2skg")
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_aacyv")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_rsmx8")
 }],
 "loop": 1,
 "name": &"combo",
