@@ -1,49 +1,112 @@
 [gd_scene format=3 uid="uid://bs0o1hsjl06og"]
 
-[ext_resource type="Script" uid="uid://be1ylmfgvqwj7" path="res://ui/main_menu/main_menu.gd" id="1_0fbet"]
+[ext_resource type="Script" uid="uid://be1ylmfgvqwj7" path="res://ui/main_menu/main_menu.gd" id="1_script"]
+[ext_resource type="FontFile" uid="uid://c2wnv3fbhyf7w" path="res://assets/fonts/pixelta/Pixelta.ttf" id="2_font"]
 
-[sub_resource type="GDScript" id="GDScript_62e2m"]
-script/source = "extends Button
+[sub_resource type="LabelSettings" id="LabelSettings_title"]
+font = ExtResource("2_font")
+font_size = 120
+font_color = Color(1, 1, 1, 1)
+outline_size = 16
+outline_color = Color(0, 0, 0, 1)
 
+[sub_resource type="LabelSettings" id="LabelSettings_hint"]
+font = ExtResource("2_font")
+font_size = 32
+font_color = Color(0.6, 0.6, 0.65, 1)
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_btn"]
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
-"
-
-[node name="Control" type="Control" unique_id=1297209604]
+[node name="MainMenu" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-rotation = 0.0011624295
-script = ExtResource("1_0fbet")
+script = ExtResource("1_script")
 
-[node name="Button_play" type="Button" parent="." unique_id=1630857803]
-layout_mode = 0
-offset_left = 448.2229
-offset_top = 191.4791
-offset_right = 676.2229
-offset_bottom = 289.47913
-text = "Jogar"
-script = SubResource("GDScript_62e2m")
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
 
-[node name="Button_quit" type="Button" parent="." unique_id=1641084267]
-layout_mode = 0
-offset_left = 448.3624
-offset_top = 311.479
-offset_right = 676.3623
-offset_bottom = 409.479
-rotation = 0.0022857273
-text = "Sair
-"
+[node name="Layout" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 80.0
+offset_top = 72.0
+offset_right = -80.0
+offset_bottom = -48.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 24
 
-[connection signal="pressed" from="Button_play" to="." method="_on_button_play_pressed"]
-[connection signal="pressed" from="Button_quit" to="." method="_on_button_quit_pressed"]
+[node name="Title" type="Label" parent="Layout"]
+layout_mode = 2
+text = "BATALHA DAS
+ATLETICAS"
+label_settings = SubResource("LabelSettings_title")
+horizontal_alignment = 1
+
+[node name="Menu" type="VBoxContainer" parent="Layout"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 3
+theme_override_constants/separation = 28
+alignment = 1
+
+[node name="ButtonPlay" type="Button" parent="Layout/Menu"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(700, 110)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 0.8, 0.1, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.8, 0.1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 72
+theme_override_styles/normal = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_btn")
+text = "JOGAR"
+
+[node name="ButtonQuit" type="Button" parent="Layout/Menu"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(700, 110)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 0.8, 0.1, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.8, 0.1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 72
+theme_override_styles/normal = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_btn")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_btn")
+text = "SAIR"
+
+[node name="Hint" type="Label" parent="Layout"]
+layout_mode = 2
+text = "SETAS ou WASD: escolher    ENTER: confirmar"
+label_settings = SubResource("LabelSettings_hint")
+horizontal_alignment = 1
+
+[connection signal="pressed" from="Layout/Menu/ButtonPlay" to="." method="_on_button_play_pressed"]
+[connection signal="pressed" from="Layout/Menu/ButtonQuit" to="." method="_on_button_quit_pressed"]
