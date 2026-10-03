@@ -20,16 +20,16 @@
 [ext_resource type="Texture2D" uid="uid://cxussrynlu3vm" path="res://characters/bravios/sneak-attack/1.png" id="10_2nx67"]
 [ext_resource type="Texture2D" uid="uid://b1pffg4xmdh6j" path="res://characters/bravios/sneak-attack/2.png" id="11_rfkog"]
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_rsmx8"]
+atlas = ExtResource("4_1b88p")
+region = Rect2(0, 0, 404, 345)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_q2skg"]
 atlas = ExtResource("2_srksn")
 region = Rect2(0, 0, 404, 345)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_aacyv"]
 atlas = ExtResource("3_hpey6")
-region = Rect2(0, 0, 404, 345)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_rsmx8"]
-atlas = ExtResource("4_1b88p")
 region = Rect2(0, 0, 404, 345)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_jatsn"]
@@ -156,8 +156,9 @@ size = Vector2(150, 320)
 script = ExtResource("1_script")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=241752309]
+position = Vector2(0, -3)
 sprite_frames = SubResource("SpriteFrames_86ap7")
-animation = &"sneak-attack"
+animation = &"combo"
 offset = Vector2(0, -172.5)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1192811983]
