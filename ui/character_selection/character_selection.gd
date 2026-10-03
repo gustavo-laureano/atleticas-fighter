@@ -20,7 +20,11 @@ const SLOT_SCENE := preload("res://ui/character_selection/character_slot.tscn")
 		if is_node_ready():
 			_build_slots()
 
+# Quem está escolhendo agora: 1 = jogador 1, 2 = jogador 2.
+var choosing_player := 1
+
 @onready var grid: GridContainer = %Grid
+@onready var title: Label = $Layout/Title
 @onready var preview_portrait: TextureRect = %PreviewPortrait
 @onready var preview_name: Label = %PreviewName
 
@@ -29,6 +33,7 @@ func _ready() -> void:
 	_build_slots()
 	if Engine.is_editor_hint():
 		return
+	_update_title()
 	if grid.get_child_count() > 0:
 		grid.get_child(0).grab_focus()
 
@@ -37,7 +42,16 @@ func _unhandled_input(event: InputEvent) -> void:
 	if Engine.is_editor_hint():
 		return
 	if event.is_action_pressed("ui_cancel"):
-		get_tree().change_scene_to_file(MAIN_MENU_SCENE)
+		# Na vez do jogador 2, ESC volta para a escolha do jogador 1.
+		if choosing_player == 2:
+			choosing_player = 1
+			_update_title()
+		else:
+			get_tree().change_scene_to_file(MAIN_MENU_SCENE)
+
+
+func _update_title() -> void:
+	title.text = "JOGADOR %d, ESCOLHA!" % choosing_player
 
 
 func _build_slots() -> void:
@@ -67,5 +81,9 @@ func _show_preview(data: CharacterData) -> void:
 
 
 func _confirm(data: CharacterData) -> void:
-	GameState.selected_character = data
+	GameState.selected_characters[choosing_player - 1] = data
+	if choosing_player == 1:
+		choosing_player = 2
+		_update_title()
+		return
 	get_tree().change_scene_to_file(STAGE_SCENE)
