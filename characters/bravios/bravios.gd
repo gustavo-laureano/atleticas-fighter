@@ -23,16 +23,20 @@ func die() -> void:
 	sprite.play("die")
 
 
+func _is_attack_frame() -> bool:
+	return is_attacking
+
+
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity += get_gravity() * delta
 
-	is_sneaking = Input.is_action_pressed("sneak") and is_on_floor()
+	is_sneaking = Input.is_action_pressed(action("sneak")) and is_on_floor()
 
 	# "attack" executa o combo em pé. "sneak-attack" continua separado e só
 	# funciona enquanto o personagem está agachado.
-	var attack_pressed := Input.is_action_just_pressed("attack")
-	var sneak_attack_pressed := Input.is_action_just_pressed("sneak-attack")
+	var attack_pressed := Input.is_action_just_pressed(action("attack"))
+	var sneak_attack_pressed := Input.is_action_just_pressed(action("sneak-attack"))
 	if is_on_floor():
 		if is_sneaking and sneak_attack_pressed:
 			if not is_attacking:
@@ -52,11 +56,11 @@ func _physics_process(delta: float) -> void:
 	if is_on_floor():
 		jump_count = MAX_JUMPS
 
-	if Input.is_action_just_pressed("jump") and jump_count > 0:
+	if Input.is_action_just_pressed(action("jump")) and jump_count > 0:
 		velocity.y = JUMP_VELOCITY
 		jump_count -= 1
 
-	var direction := Input.get_axis("ui_left", "ui_right")
+	var direction := Input.get_axis(action("left"), action("right"))
 	var current_speed := SPEED * 0.4 if is_sneaking else SPEED
 
 	if direction:
@@ -72,6 +76,7 @@ func _start_sneak_attack() -> void:
 	_reset_combo()
 	is_attacking = true
 	velocity.x = 0
+	begin_attack()
 	sprite.play("sneak-attack")
 	await sprite.animation_finished
 	is_attacking = false
@@ -99,6 +104,7 @@ func _play_combo() -> void:
 	while combo_step < COMBO_SIZE:
 		# A animação "combo" contém jab, hook e uppercut nos frames 0, 1 e 2.
 		# Exibimos só um frame por clique, em vez de tocar os três de uma vez.
+		begin_attack()
 		sprite.play(COMBO_ANIMATION)
 		sprite.pause()
 		sprite.frame = combo_step

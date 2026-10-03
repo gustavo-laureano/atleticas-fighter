@@ -21,16 +21,16 @@ func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity += get_gravity() * delta
 
-	is_sneaking = Input.is_action_pressed("sneak") and is_on_floor()
+	is_sneaking = Input.is_action_pressed(action("sneak")) and is_on_floor()
 
 	if is_on_floor():
 		jump_count = MAX_JUMPS
 
-	if Input.is_action_just_pressed("jump") and jump_count > 0:
+	if Input.is_action_just_pressed(action("jump")) and jump_count > 0:
 		velocity.y = JUMP_VELOCITY
 		jump_count -= 1
 
-	var direction := Input.get_axis("ui_left", "ui_right")
+	var direction := Input.get_axis(action("left"), action("right"))
 	var current_speed := SPEED * 0.4 if is_sneaking else SPEED
 
 	if direction:
