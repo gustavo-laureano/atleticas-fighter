@@ -9,9 +9,12 @@ extends CharacterBody2D
 # frames exportados no mesmo canvas, com os pés na mesma linha (ver README).
 #
 # Existem três "caixas" de colisão:
-# - CollisionShape2D (retângulo fixo): corpo físico, só para andar, pular e
-#   não atravessar o outro lutador. Fica fixo de propósito, para o chão não
-#   "tremer" quando o desenho muda.
+# - CollisionShape2D (retângulo): corpo físico, para andar, pular e limitar
+#   quanto um lutador entra no outro. A largura é a do desenho do idle (até a
+#   ponta do punho, nos dois lados) reduzida por MAX_OVERLAP: com 0.5, os
+#   desenhos podem se sobrepor até metade dessa largura, e não mais que isso.
+#   Não muda a cada frame de propósito, para o chão e o empurrão não
+#   "tremerem". Se não existir na cena, é criado aqui.
 # - Hurtbox (Area2D criada aqui): onde o lutador APANHA. Segue o desenho do
 #   frame atual, pixel a pixel (ver SpriteShapes).
 # - AttackBox (Area2D criada aqui): onde o golpe ACERTA. É a parte do desenho
@@ -27,6 +30,9 @@ const REFERENCE_ANIMATION := &"idle"
 # A AttackBox só considera o desenho a partir dessa distância do centro do
 # corpo, na direção para onde o lutador olha (punho, pé, etc.).
 const ATTACK_FRONT_X := HITBOX_SIZE.x / 2.0
+# Quanto um lutador pode entrar no outro, em fração da largura do desenho.
+# 0 = só se encostam, 0.5 = até metade, 1 = atravessa.
+const MAX_OVERLAP := 0.5
 # Camada de física 3 ("hurtbox" em Projeto > Configurações > Nomes de Camadas).
 const HURTBOX_LAYER := 1 << 2
 
@@ -51,7 +57,7 @@ var _current_boxes: Array = []
 var _already_hit: Array[Fighter] = []
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
-@onready var hitbox: CollisionShape2D = $CollisionShape2D
+@onready var hitbox: CollisionShape2D = get_node_or_null("CollisionShape2D")
 
 
 func _ready() -> void:
@@ -135,8 +141,15 @@ func _apply_standard_size() -> void:
 	# offset é em pixels da textura: leva o pé (fundo da área desenhada) para y = 0.
 	sprite.offset = Vector2(0, reference.get_height() / 2.0 - body.end.y)
 
+	if hitbox == null:
+		hitbox = CollisionShape2D.new()
+		hitbox.name = "CollisionShape2D"
+		add_child(hitbox)
+
+	# Ponta da frente do desenho (o personagem olha para a direita), em px do lutador.
+	var front := (body.end.x - reference.get_width() / 2.0 + sprite.offset.x) * sprite.scale.x + sprite.position.x
 	var shape := RectangleShape2D.new()
-	shape.size = HITBOX_SIZE
+	shape.size = Vector2(2.0 * front * (1.0 - MAX_OVERLAP), HITBOX_SIZE.y)
 	hitbox.shape = shape
 	hitbox.scale = Vector2.ONE
 	hitbox.position = Vector2(0, -HITBOX_SIZE.y / 2.0)
