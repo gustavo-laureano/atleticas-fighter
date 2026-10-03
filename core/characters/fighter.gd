@@ -30,6 +30,9 @@ const REFERENCE_ANIMATION := &"idle"
 # A AttackBox só considera o desenho a partir dessa distância do centro do
 # corpo, na direção para onde o lutador olha (punho, pé, etc.).
 const ATTACK_FRONT_X := HITBOX_SIZE.x / 2.0
+# Duração de TODO golpe (soco em pé, ataque agachado...), em segundos, não
+# importa quantos frames a animação tenha: os frames dividem esse tempo.
+const ATTACK_DURATION := 0.18
 # Quanto um lutador pode entrar no outro, em fração da largura do desenho.
 # 0 = só se encostam, 0.5 = até metade, 1 = atravessa.
 const MAX_OVERLAP := 0.5
@@ -107,6 +110,20 @@ func _is_attack_frame() -> bool:
 # Subclasses: chame no início de cada golpe, para ele poder acertar de novo.
 func begin_attack() -> void:
 	_already_hit.clear()
+
+
+# Toca um golpe com a duração padrão (ATTACK_DURATION). `frames` escolhe quais
+# frames da animação mostrar; vazio = todos. Use com await.
+func play_attack(animation: StringName, frames: Array[int] = []) -> void:
+	var shown: Array[int] = frames.duplicate()
+	if shown.is_empty():
+		shown.assign(range(sprite.sprite_frames.get_frame_count(animation)))
+	begin_attack()
+	sprite.play(animation)
+	sprite.pause()
+	for frame in shown:
+		sprite.frame = frame
+		await get_tree().create_timer(ATTACK_DURATION / shown.size()).timeout
 
 
 func _set_health(value: int) -> void:
