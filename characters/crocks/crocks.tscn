@@ -24,7 +24,7 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("2_die3")
 }],
-"loop": false,
+"loop": 0,
 "name": &"die",
 "speed": 5.0
 }, {
@@ -32,7 +32,7 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("5_bwjto")
 }],
-"loop": true,
+"loop": 1,
 "name": &"fall",
 "speed": 5.0
 }, {
@@ -40,7 +40,7 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("7_bwjto")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 5.0
 }, {
@@ -54,7 +54,7 @@ animations = [{
 "duration": 2.0,
 "texture": ExtResource("5_bwjto")
 }],
-"loop": true,
+"loop": 1,
 "name": &"jump",
 "speed": 5.0
 }, {
@@ -62,7 +62,7 @@ animations = [{
 "duration": 0.5,
 "texture": ExtResource("3_ivps1")
 }],
-"loop": true,
+"loop": 1,
 "name": &"sneak",
 "speed": 5.0
 }, {
@@ -70,7 +70,7 @@ animations = [{
 "duration": 0.5,
 "texture": ExtResource("3_ivps1")
 }],
-"loop": true,
+"loop": 1,
 "name": &"sneak_walk",
 "speed": 5.0
 }, {
@@ -84,13 +84,10 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("15_op7ga")
 }],
-"loop": true,
+"loop": 1,
 "name": &"walk",
 "speed": 5.0
 }]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_4flbx"]
-size = Vector2(150, 320)
 
 [node name="CharacterBody2D" type="CharacterBody2D" unique_id=614222687]
 script = ExtResource("1_onrkg")
@@ -100,7 +97,3 @@ scale = Vector2(1.3709677, 1.3709677)
 sprite_frames = SubResource("SpriteFrames_86ap7")
 animation = &"idle"
 offset = Vector2(0, -130.5)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1192811983]
-position = Vector2(0, -160)
-shape = SubResource("RectangleShape2D_4flbx")

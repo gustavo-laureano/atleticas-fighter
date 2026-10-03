@@ -7,7 +7,6 @@ const MAX_JUMPS := 2
 const COMBO_WINDOW_MS := 450
 const COMBO_ANIMATION := &"combo"
 const COMBO_SIZE := 3
-const ATTACK_FRAME_TIME := 0.18
 
 var jump_count := MAX_JUMPS
 var is_sneaking := false
@@ -76,9 +75,7 @@ func _start_sneak_attack() -> void:
 	_reset_combo()
 	is_attacking = true
 	velocity.x = 0
-	begin_attack()
-	sprite.play("sneak-attack")
-	await sprite.animation_finished
+	await play_attack(&"sneak-attack")
 	is_attacking = false
 
 
@@ -104,11 +101,7 @@ func _play_combo() -> void:
 	while combo_step < COMBO_SIZE:
 		# A animação "combo" contém jab, hook e uppercut nos frames 0, 1 e 2.
 		# Exibimos só um frame por clique, em vez de tocar os três de uma vez.
-		begin_attack()
-		sprite.play(COMBO_ANIMATION)
-		sprite.pause()
-		sprite.frame = combo_step
-		await get_tree().create_timer(ATTACK_FRAME_TIME).timeout
+		await play_attack(COMBO_ANIMATION, [combo_step])
 		combo_step += 1
 
 		if combo_step >= COMBO_SIZE:
