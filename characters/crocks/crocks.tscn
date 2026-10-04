@@ -84,6 +84,9 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": ExtResource("15_op7ga")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_u1c27")
 }],
 "loop": 1,
 "name": &"walk",
@@ -96,5 +99,5 @@ script = ExtResource("1_onrkg")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=241752309]
 scale = Vector2(1.3709677, 1.3709677)
 sprite_frames = SubResource("SpriteFrames_86ap7")
-animation = &"idle"
+animation = &"walk"
 offset = Vector2(0, -130.5)
