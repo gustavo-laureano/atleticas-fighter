@@ -3,9 +3,11 @@
 [ext_resource type="Script" uid="uid://ck4u8ryvawmx1" path="res://core/characters/character_data.gd" id="1_data"]
 [ext_resource type="Texture2D" uid="uid://pm3h5bkcw7ji" path="res://characters/bravios/idle/idle.png" id="2_portrait"]
 [ext_resource type="PackedScene" uid="uid://dokibbadoma5k" path="res://characters/bravios/bravios.tscn" id="2_wsko1"]
+[ext_resource type="Texture2D" uid="uid://bc2dbglb512xr" path="res://characters/bravios/main/bravios.png" id="4_face"]
 
 [resource]
 script = ExtResource("1_data")
 display_name = "Bravios"
 portrait = ExtResource("2_portrait")
 scene = ExtResource("2_wsko1")
+face = ExtResource("4_face")
