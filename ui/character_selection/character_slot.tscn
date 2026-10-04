@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://psaxilkxy6qw"]
 
 [ext_resource type="Script" uid="uid://df0swac0lt87" path="res://ui/character_selection/character_slot.gd" id="1_slot"]
-[ext_resource type="Texture2D" uid="uid://btneuo56t18k0" path="res://characters/crocks/idle/idle.png" id="2_placeholder"]
+[ext_resource type="Texture2D" uid="uid://cadurrye0twgl" path="res://characters/crocks/idle/idle.png" id="2_placeholder"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_normal"]
 content_margin_left = 8.0
