@@ -92,25 +92,51 @@ personagens ficam iguais na tela mesmo com sprites de resoluções diferentes:
   desenhada, ignorando a margem transparente).
 - **Origem nos pés:** o `offset` do sprite é ajustado para o pé ficar em
   `y = 0` do nó. O `PlayerSpawn` da fase marca onde o pé nasce.
-- **Hitbox:** o `CollisionShape2D` vira um retângulo `Fighter.HITBOX_SIZE`
-  apoiado na origem, igual para todos.
+- **Corpo físico e hitboxes:** o `CollisionShape2D` (corpo físico) tem a
+  largura do desenho do idle reduzida por `Fighter.MAX_OVERLAP`; a hurtbox e
+  a área de golpe seguem o contorno de cada frame (ver comentário no topo de
+  `core/characters/fighter.gd`).
 
 Os valores de escala/offset/hitbox salvos nos `.tscn` são só pré-visualização
 no editor — o que vale no jogo é o que o `Fighter` calcula. Por isso:
 
 - o nó raiz da cena do personagem fica com `scale = 1`;
-- todos os frames de um personagem são exportados **no mesmo canvas**, com o
-  pé encostado na borda de baixo e o corpo centralizado na horizontal. Sem
-  isso o personagem "treme" ou afunda no chão ao trocar de animação.
+- todos os frames de um personagem têm a **mesma largura**, cortados rente ao
+  desenho em cima e embaixo e com o corpo centralizado na horizontal. Sem
+  isso o personagem "treme" ou escorrega ao trocar de animação (ver abaixo).
 
 As sheets originais ficam em `source/` (com um arquivo `.gdignore`, então o
 Godot não importa). Os frames de `idle/`, `walk/` etc. são gerados a partir
 delas, recortados e alinhados.
 
+### Padrão das imagens (sprites)
+
+Todo frame de todo personagem segue o mesmo molde. A Bravios é a referência.
+Use `docs/sprites/guia_sprite_512x282.png` como camada-guia no programa de
+desenho e veja `docs/sprites/exemplo_padrao.png` para os dois personagens
+no padrão.
+
+| Regra | Valor |
+|---|---|
+| Altura da imagem | **cortada rente ao desenho**: a primeira linha é o topo do desenho e a última, a base (os pés) |
+| Altura do **idle** e do **walk** | **exatamente 282 px**, em todos os frames |
+| Outras poses (jump, die, agachado, golpes) | **mesma escala** do idle: a altura é a do desenho (ex.: agachado ~130 px, braços erguidos ~318 px, deitado ~100 px) |
+| Largura da imagem | **512 px** em todos os frames, com o **centro do corpo na linha do meio (`x = 256`)** |
+| Fundo | transparente (PNG com alfa), sem sombra, brilho ou contorno colorido em volta |
+| Direção | olhando para a **direita** (o jogo espelha para a esquerda) |
+| Cores | mesmo nível da Bravios: detalhes fortes mas escuros (sem neon) e corpo escuro |
+| Nome dos arquivos | `<animação>/1.png`, `2.png`... na ordem em que tocam |
+
+Como o jogo usa isso: a escala vem do idle (282 px de desenho viram
+`Fighter.BODY_HEIGHT` px na tela) e, a cada frame, a base do desenho é
+encostada no chão. Por isso a largura fixa e o corpo centralizado importam:
+sem eles o personagem "escorrega" para o lado ao trocar de frame. Se algum
+frame vier com outra largura, o Godot mostra um aviso na aba Saída.
+
 ### Para criar um personagem novo
 
 1. Duplique `characters/crocks/` para `characters/<curso>/`.
-2. Troque os sprites (um PNG por frame, todos no mesmo canvas — ver acima) e
+2. Troque os sprites (um PNG por frame, no padrão das imagens — ver acima) e
    o `class_name` do script (ex.: `class_name Engenharia`), mantendo
    `extends Fighter`. Aponte o `.tscn` para o script novo.
 3. Implemente só o que muda: movimento, animações e o(s) golpe(s) especial(is)
