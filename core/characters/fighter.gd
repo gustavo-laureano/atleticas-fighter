@@ -116,7 +116,17 @@ func heal(amount: int) -> void:
 
 func die() -> void:
 	died.emit()
+	# Para de ler os controles (o _physics_process da subclasse), mas o corpo
+	# continua sob gravidade: quem morre no ar cai até o chão.
 	set_physics_process(false)
+	get_tree().physics_frame.connect(_fall_while_dead)
+
+
+func _fall_while_dead() -> void:
+	velocity.x = move_toward(velocity.x, 0, 20.0)
+	if not is_on_floor():
+		velocity += get_gravity() * get_physics_process_delta_time()
+	move_and_slide()
 
 
 # Subclasses: retorne true enquanto o frame atual for um golpe.
@@ -136,10 +146,15 @@ func play_attack(animation: StringName, frames: Array[int] = []) -> void:
 	var shown: Array[int] = frames.duplicate()
 	if shown.is_empty():
 		shown.assign(range(sprite.sprite_frames.get_frame_count(animation)))
+	# Morto não golpeia: um combo em andamento não pode trocar a animação de morte.
+	if current_health <= 0:
+		return
 	begin_attack()
 	sprite.play(animation)
 	sprite.pause()
 	for frame in shown:
+		if current_health <= 0:
+			return
 		sprite.frame = frame
 		await get_tree().create_timer(ATTACK_DURATION / shown.size()).timeout
 	start_recovery(ATTACK_RECOVERY)
