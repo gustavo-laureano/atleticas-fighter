@@ -33,6 +33,13 @@ const ATTACK_FRONT_X := HITBOX_SIZE.x / 2.0
 # Duração de TODO golpe (soco em pé, ataque agachado...), em segundos, não
 # importa quantos frames a animação tenha: os frames dividem esse tempo.
 const ATTACK_DURATION := 0.18
+# Recuperação (como no Street Fighter): depois de um golpe o lutador fica
+# parado na pose, sem atacar nem andar, e apertar ataque nesse tempo não faz
+# nada. É o que impede ficar apertando sem parar. Encadear o próximo golpe
+# DURANTE o atual (combo) continua valendo.
+const ATTACK_RECOVERY := 0.2
+# Recuperação maior depois do último golpe de um combo completo.
+const COMBO_RECOVERY := 0.5
 # Quanto um lutador pode entrar no outro, em fração da largura do desenho.
 # 0 = só se encostam, 0.5 = até metade, 1 = atravessa.
 const MAX_OVERLAP := 0.5
@@ -60,6 +67,8 @@ var _current_boxes: Array = []
 var _already_hit: Array[Fighter] = []
 # Área desenhada de cada textura (Rect2), em px da textura.
 var _drawn_rects: Dictionary = {}
+# Até quando (Time.get_ticks_msec) o lutador está em recuperação.
+var _recovery_until_ms := 0
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var hitbox: CollisionShape2D = get_node_or_null("CollisionShape2D")
@@ -114,8 +123,9 @@ func begin_attack() -> void:
 	_already_hit.clear()
 
 
-# Toca um golpe com a duração padrão (ATTACK_DURATION). `frames` escolhe quais
-# frames da animação mostrar; vazio = todos. Use com await.
+# Toca um golpe com a duração padrão (ATTACK_DURATION) e, no fim, entra em
+# recuperação (ATTACK_RECOVERY). `frames` escolhe quais frames da animação
+# mostrar; vazio = todos. Use com await.
 func play_attack(animation: StringName, frames: Array[int] = []) -> void:
 	var shown: Array[int] = frames.duplicate()
 	if shown.is_empty():
@@ -126,6 +136,16 @@ func play_attack(animation: StringName, frames: Array[int] = []) -> void:
 	for frame in shown:
 		sprite.frame = frame
 		await get_tree().create_timer(ATTACK_DURATION / shown.size()).timeout
+	start_recovery(ATTACK_RECOVERY)
+
+
+# Deixa o lutador em recuperação por `seconds` (nunca encurta uma já em andamento).
+func start_recovery(seconds: float) -> void:
+	_recovery_until_ms = maxi(_recovery_until_ms, Time.get_ticks_msec() + roundi(seconds * 1000.0))
+
+
+func is_recovering() -> bool:
+	return Time.get_ticks_msec() < _recovery_until_ms
 
 
 func _set_health(value: int) -> void:
