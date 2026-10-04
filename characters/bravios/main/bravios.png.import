@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://lxiiyamsdyiv"
-path="res://.godot/imported/uemg1.png-d8ebe5632ea02c1d47b4ba4127656273.ctex"
+uid="uid://bc2dbglb512xr"
+path="res://.godot/imported/bravios.png-2bcb2f6fe34cf93d4b504b82d19195b1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://stages/stage_02/uemg1.png"
-dest_files=["res://.godot/imported/uemg1.png-d8ebe5632ea02c1d47b4ba4127656273.ctex"]
+source_file="res://characters/bravios/main/bravios.png"
+dest_files=["res://.godot/imported/bravios.png-2bcb2f6fe34cf93d4b504b82d19195b1.ctex"]
 
 [params]
 

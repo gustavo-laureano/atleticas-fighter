@@ -30,24 +30,27 @@ func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity += get_gravity() * delta
 
-	is_sneaking = Input.is_action_pressed(action("sneak")) and is_on_floor()
+	is_sneaking = update_crouch(Input.is_action_pressed(action("sneak")))
 
 	# "attack" executa o combo em pé. "sneak-attack" continua separado e só
-	# funciona enquanto o personagem está agachado.
+	# funciona enquanto o personagem está agachado. Na recuperação depois de um
+	# golpe (is_recovering), apertar ataque não faz nada; durante um soco do
+	# combo, o clique fica guardado e encadeia o próximo.
 	var attack_pressed := Input.is_action_just_pressed(action("attack"))
 	var sneak_attack_pressed := Input.is_action_just_pressed(action("sneak-attack"))
 	if is_on_floor():
 		if is_sneaking and sneak_attack_pressed:
-			if not is_attacking:
+			if not is_attacking and not is_recovering():
 				_start_sneak_attack()
 		elif attack_pressed:
 			if is_attacking:
 				if is_combo_attacking:
 					_buffer_combo_attack()
-			else:
+			elif not is_recovering():
 				_start_combo_attack()
 
-	if is_attacking:
+	# Golpeando ou se recuperando: fica parado, segurando a pose do golpe.
+	if is_attacking or is_recovering():
 		velocity.x = 0
 		move_and_slide()
 		return
@@ -106,6 +109,7 @@ func _play_combo() -> void:
 
 		if combo_step >= COMBO_SIZE:
 			_reset_combo()
+			start_recovery(COMBO_RECOVERY)
 			break
 
 		if buffered_attacks == 0:
