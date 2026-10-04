@@ -21,7 +21,7 @@ func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity += get_gravity() * delta
 
-	is_sneaking = Input.is_action_pressed(action("sneak")) and is_on_floor()
+	is_sneaking = update_crouch(Input.is_action_pressed(action("sneak")))
 
 	if is_on_floor():
 		jump_count = MAX_JUMPS

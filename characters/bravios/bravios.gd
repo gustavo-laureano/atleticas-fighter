@@ -30,7 +30,7 @@ func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity += get_gravity() * delta
 
-	is_sneaking = Input.is_action_pressed(action("sneak")) and is_on_floor()
+	is_sneaking = update_crouch(Input.is_action_pressed(action("sneak")))
 
 	# "attack" executa o combo em pé. "sneak-attack" continua separado e só
 	# funciona enquanto o personagem está agachado. Na recuperação depois de um

@@ -40,6 +40,9 @@ const ATTACK_DURATION := 0.18
 const ATTACK_RECOVERY := 0.2
 # Recuperação maior depois do último golpe de um combo completo.
 const COMBO_RECOVERY := 0.5
+# Agachar e levantar: depois de trocar de postura, ela fica travada por esse
+# tempo. Apertar e soltar rápido não faz o lutador ficar subindo e descendo.
+const CROUCH_LOCK := 0.25
 # Quanto um lutador pode entrar no outro, em fração da largura do desenho.
 # 0 = só se encostam, 0.5 = até metade, 1 = atravessa.
 const MAX_OVERLAP := 0.5
@@ -69,6 +72,9 @@ var _already_hit: Array[Fighter] = []
 var _drawn_rects: Dictionary = {}
 # Até quando (Time.get_ticks_msec) o lutador está em recuperação.
 var _recovery_until_ms := 0
+# Postura atual (agachado ou não) e até quando ela está travada.
+var _crouching := false
+var _crouch_locked_until_ms := 0
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var hitbox: CollisionShape2D = get_node_or_null("CollisionShape2D")
@@ -146,6 +152,18 @@ func start_recovery(seconds: float) -> void:
 
 func is_recovering() -> bool:
 	return Time.get_ticks_msec() < _recovery_until_ms
+
+
+# Subclasses: chame todo frame com o botão de agachar e use o retorno como
+# "está agachado". Só troca de postura depois de CROUCH_LOCK; no ar nunca
+# fica agachado (e sair do chão não tem trava).
+func update_crouch(wants_to_crouch: bool) -> bool:
+	if not is_on_floor():
+		_crouching = false
+	elif wants_to_crouch != _crouching and Time.get_ticks_msec() >= _crouch_locked_until_ms:
+		_crouching = wants_to_crouch
+		_crouch_locked_until_ms = Time.get_ticks_msec() + roundi(CROUCH_LOCK * 1000.0)
+	return _crouching
 
 
 func _set_health(value: int) -> void:
