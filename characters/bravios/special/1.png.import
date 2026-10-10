@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://qxj8exrx2uo2"
-path="res://.godot/imported/ataque_03_final.png-f4ea18e71e735a74053705cb22ea8271.ctex"
+uid="uid://bt0ipv2y3pysl"
+path="res://.godot/imported/1.png-fd5080247a9398ef1166deef348dadc7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/bravios/special/ataque_03_final.png"
-dest_files=["res://.godot/imported/ataque_03_final.png-f4ea18e71e735a74053705cb22ea8271.ctex"]
+source_file="res://characters/bravios/special/1.png"
+dest_files=["res://.godot/imported/1.png-fd5080247a9398ef1166deef348dadc7.ctex"]
 
 [params]
 

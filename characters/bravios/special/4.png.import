@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dx0b0rygbr6g6"
-path="res://.godot/imported/ataque_04_sem_bola.png-a199bd4c3e4909a843fc17a3d30ef8db.ctex"
+uid="uid://boy7284latift"
+path="res://.godot/imported/4.png-3b7f081128023125b5f471bfcff08726.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/bravios/special/ataque_04_sem_bola.png"
-dest_files=["res://.godot/imported/ataque_04_sem_bola.png-a199bd4c3e4909a843fc17a3d30ef8db.ctex"]
+source_file="res://characters/bravios/special/4.png"
+dest_files=["res://.godot/imported/4.png-3b7f081128023125b5f471bfcff08726.ctex"]
 
 [params]
 

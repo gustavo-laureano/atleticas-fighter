@@ -9,13 +9,14 @@ const COMBO_ANIMATION := &"combo"
 const COMBO_SIZE := 3
 const SPECIAL_ANIMATION := &"special"
 const SPECIAL_DAMAGE := 4
-# Duração da animação inteira, como um Super Art do Street Fighter 6 (~78
-# frames a 60 fps). O frame do acerto tem "Duração" 1.5 no SpriteFrames, então
-# o golpe sai em ~0,46 s e fica ativo ~0,23 s.
-const SPECIAL_DURATION := 1.3
+# Duração da animação inteira. O frame do arremesso tem "Duração" 3.5 no
+# SpriteFrames, então a bola sai em ~0,46 s e a pose final fica ~0,54 s.
+const SPECIAL_DURATION := 1.0
 const SPECIAL_RECOVERY := 0.6
-# Só este frame do especial acerta (panther_frame_04, contando do 0).
-const SPECIAL_HIT_FRAME := 3
+# A bola sai quando a animação chega neste frame (special/4.png, contando do 0).
+const SPECIAL_THROW_FRAME := 3
+# Mão que arremessa no frame do arremesso, em px da textura, a partir do pé.
+const SPECIAL_HAND := Vector2(160, -275)
 
 var jump_count := MAX_JUMPS
 var is_sneaking := false
@@ -24,6 +25,7 @@ var is_combo_attacking := false
 var combo_step := 0
 var buffered_attacks := 0
 var combo_deadline_ms := 0
+var ball_in_hand := false
 
 
 func die() -> void:
@@ -31,10 +33,9 @@ func die() -> void:
 	sprite.play("die")
 
 
+# No especial quem acerta é a bola, não o corpo.
 func _is_attack_frame() -> bool:
-	if is_attacking and sprite.animation == SPECIAL_ANIMATION:
-		return sprite.frame == SPECIAL_HIT_FRAME
-	return is_attacking
+	return is_attacking and sprite.animation != SPECIAL_ANIMATION
 
 
 func _physics_process(delta: float) -> void:
@@ -63,6 +64,9 @@ func _physics_process(delta: float) -> void:
 					_buffer_combo_attack()
 			elif not is_recovering():
 				_start_combo_attack()
+
+	if ball_in_hand and sprite.animation == SPECIAL_ANIMATION and sprite.frame >= SPECIAL_THROW_FRAME:
+		_throw_ball()
 
 	# Golpeando ou se recuperando: fica parado, segurando a pose do golpe.
 	if is_attacking or is_recovering():
@@ -103,10 +107,19 @@ func _start_special() -> void:
 		return
 	_reset_combo()
 	is_attacking = true
+	ball_in_hand = true
 	velocity.x = 0
-	await play_attack(SPECIAL_ANIMATION, [], SPECIAL_DURATION, SPECIAL_DAMAGE)
+	await play_attack(SPECIAL_ANIMATION, [], SPECIAL_DURATION)
 	start_recovery(SPECIAL_RECOVERY)
+	ball_in_hand = false
 	is_attacking = false
+
+
+func _throw_ball() -> void:
+	ball_in_hand = false
+	var side := -1.0 if sprite.flip_h else 1.0
+	var hand := Vector2(SPECIAL_HAND.x * side, SPECIAL_HAND.y) * sprite.scale + sprite.position
+	Basketball.throw(self, global_position + hand, side, SPECIAL_DAMAGE)
 
 
 func _start_combo_attack() -> void:

@@ -41,6 +41,8 @@ characters/
 objects/
   hadoken/                     # golpes especiais/objetos interativos
     hadoken.tscn  hadoken.gd  Hadouken.png
+  basketball/                  # bola do super especial da Bravios
+    basketball.gd
 
 stages/
   stage_01/                    # uma pasta por fase/arena
@@ -146,7 +148,9 @@ frame vier com outra largura, o Godot mostra um aviso na aba Saída.
 
 ### Próximo passo natural (não feito agora)
 
-Hoje só existe um golpe especial (`objects/hadoken/`). Quando a equipe
+Hoje os projéteis são o `objects/hadoken/` (não usado) e a bola do super
+especial da Bravios (`objects/basketball/`, lançada no frame 4 de
+`special`). Quando a equipe
 criar o segundo golpe especial de outro curso, vale criar uma classe base
 `SpecialAttack` (parecida com o `Fighter`) para os golpes reaproveitarem
 código — não fiz isso agora porque com um único exemplo seria especular

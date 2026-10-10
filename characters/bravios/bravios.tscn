@@ -19,14 +19,10 @@
 [ext_resource type="Texture2D" uid="uid://c17y8obh5rbfb" path="res://characters/bravios/sneak/3.png" id="6_sneak3"]
 [ext_resource type="Texture2D" uid="uid://cxussrynlu3vm" path="res://characters/bravios/sneak-attack/1.png" id="10_2nx67"]
 [ext_resource type="Texture2D" uid="uid://b1pffg4xmdh6j" path="res://characters/bravios/sneak-attack/2.png" id="11_rfkog"]
-[ext_resource type="Texture2D" uid="uid://bwa78v4j03sv0" path="res://characters/bravios/special/panther_frame_01.png" id="17_frhio"]
-[ext_resource type="Texture2D" uid="uid://brxjlttq5b32p" path="res://characters/bravios/special/panther_frame_02.png" id="18_tyof1"]
-[ext_resource type="Texture2D" uid="uid://mp5el2bpfua5" path="res://characters/bravios/special/panther_frame_03.png" id="19_pus6s"]
-[ext_resource type="Texture2D" uid="uid://bw8mxt2bmcbvk" path="res://characters/bravios/special/panther_frame_04.png" id="20_kw6fe"]
-[ext_resource type="Texture2D" uid="uid://g5a7qr04novo" path="res://characters/bravios/special/panther_frame_05.png" id="21_ntjwf"]
-[ext_resource type="Texture2D" uid="uid://dmuxn0trkxu7b" path="res://characters/bravios/special/panther_frame_06.png" id="22_wt0o1"]
-[ext_resource type="Texture2D" uid="uid://c2nd85qt1ve6d" path="res://characters/bravios/special/panther_frame_07.png" id="23_6g5p0"]
-[ext_resource type="Texture2D" uid="uid://dfw4snrlgbmv" path="res://characters/bravios/special/panther_frame_08.png" id="24_3bkxv"]
+[ext_resource type="Texture2D" uid="uid://bt0ipv2y3pysl" path="res://characters/bravios/special/1.png" id="17_spec1"]
+[ext_resource type="Texture2D" uid="uid://xxdlft6cf2ji" path="res://characters/bravios/special/2.png" id="18_spec2"]
+[ext_resource type="Texture2D" uid="uid://ujaq8uo5fs6x" path="res://characters/bravios/special/3.png" id="19_spec3"]
+[ext_resource type="Texture2D" uid="uid://boy7284latift" path="res://characters/bravios/special/4.png" id="20_spec4"]
 [sub_resource type="SpriteFrames" id="SpriteFrames_86ap7"]
 animations = [{
 "frames": [{
@@ -127,28 +123,16 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("17_frhio")
+"texture": ExtResource("17_spec1")
 }, {
 "duration": 1.0,
-"texture": ExtResource("18_tyof1")
+"texture": ExtResource("18_spec2")
 }, {
 "duration": 1.0,
-"texture": ExtResource("19_pus6s")
+"texture": ExtResource("19_spec3")
 }, {
-"duration": 1.5,
-"texture": ExtResource("20_kw6fe")
-}, {
-"duration": 1.0,
-"texture": ExtResource("21_ntjwf")
-}, {
-"duration": 1.0,
-"texture": ExtResource("22_wt0o1")
-}, {
-"duration": 1.0,
-"texture": ExtResource("23_6g5p0")
-}, {
-"duration": 1.0,
-"texture": ExtResource("24_3bkxv")
+"duration": 3.5,
+"texture": ExtResource("20_spec4")
 }],
 "loop": 0,
 "name": &"special",

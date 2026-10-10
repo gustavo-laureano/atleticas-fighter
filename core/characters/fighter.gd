@@ -269,8 +269,14 @@ func _check_hits() -> void:
 		if target == null or target == self or target in _already_hit:
 			continue
 		_already_hit.append(target)
-		target.take_damage(_attack_damage_now)
-		gain_special(SPECIAL_GAIN_ON_HIT)
+		hit(target, _attack_damage_now)
+
+
+# Acerto deste lutador em `target`, de golpe ou de projétil (ex.: a bola do
+# especial): aplica o dano e enche a barra de especial de quem acertou.
+func hit(target: Fighter, damage: int) -> void:
+	target.take_damage(damage)
+	gain_special(SPECIAL_GAIN_ON_HIT)
 
 
 func _apply_standard_size() -> void:
