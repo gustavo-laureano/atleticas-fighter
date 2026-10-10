@@ -28,41 +28,17 @@
 [ext_resource type="Texture2D" uid="uid://c2nd85qt1ve6d" path="res://characters/bravios/special/panther_frame_07.png" id="23_6g5p0"]
 [ext_resource type="Texture2D" uid="uid://dfw4snrlgbmv" path="res://characters/bravios/special/panther_frame_08.png" id="24_3bkxv"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_rsmx8"]
-atlas = ExtResource("4_1b88p")
-region = Rect2(0, 0, 404, 345)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_q2skg"]
-atlas = ExtResource("2_srksn")
-region = Rect2(0, 0, 404, 345)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_aacyv"]
-atlas = ExtResource("3_hpey6")
-region = Rect2(0, 0, 404, 345)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_jatsn"]
-atlas = ExtResource("5_lj1o8")
-region = Rect2(0, 0, 404, 345)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ghrbt"]
-atlas = ExtResource("10_2nx67")
-region = Rect2(0, 0, 404, 345)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_srksn"]
-atlas = ExtResource("11_rfkog")
-region = Rect2(0, 0, 404, 345)
-
 [sub_resource type="SpriteFrames" id="SpriteFrames_86ap7"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_rsmx8")
+"texture": ExtResource("4_1b88p")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_q2skg")
+"texture": ExtResource("2_srksn")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_aacyv")
+"texture": ExtResource("3_hpey6")
 }],
 "loop": 1,
 "name": &"combo",
@@ -84,7 +60,7 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_jatsn")
+"texture": ExtResource("5_lj1o8")
 }],
 "loop": 1,
 "name": &"fall",
@@ -119,10 +95,10 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_ghrbt")
+"texture": ExtResource("10_2nx67")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_srksn")
+"texture": ExtResource("11_rfkog")
 }],
 "loop": 0,
 "name": &"sneak-attack",

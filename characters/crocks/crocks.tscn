@@ -7,7 +7,8 @@
 [ext_resource type="Texture2D" uid="uid://b1eo6iolmubfa" path="res://characters/crocks/jump/1.png" id="3_ivps1"]
 [ext_resource type="Texture2D" uid="uid://bn0astuk2lnsu" path="res://characters/crocks/jump/2.png" id="4_urp6f"]
 [ext_resource type="Texture2D" uid="uid://xkbif344ueb8" path="res://characters/crocks/jump/3.png" id="5_bwjto"]
-[ext_resource type="Texture2D" uid="uid://btneuo56t18k0" path="res://characters/crocks/idle/idle.png" id="7_bwjto"]
+[ext_resource type="Texture2D" uid="uid://cadurrye0twgl" path="res://characters/crocks/idle/idle.png" id="7_bwjto"]
+[ext_resource type="Texture2D" uid="uid://dfpxlflqbcwov" path="res://characters/crocks/sneak/1.png" id="9_mmi5h"]
 [ext_resource type="Texture2D" uid="uid://b013d6o4yjsgh" path="res://characters/crocks/walk/1.png" id="13_606se"]
 [ext_resource type="Texture2D" uid="uid://cc76g3wuhboqa" path="res://characters/crocks/walk/2.png" id="14_u1c27"]
 [ext_resource type="Texture2D" uid="uid://cnt78odm80rco" path="res://characters/crocks/walk/3.png" id="15_op7ga"]
@@ -59,8 +60,8 @@ animations = [{
 "speed": 5.0
 }, {
 "frames": [{
-"duration": 0.5,
-"texture": ExtResource("3_ivps1")
+"duration": 1.0,
+"texture": ExtResource("9_mmi5h")
 }],
 "loop": 1,
 "name": &"sneak",
@@ -83,6 +84,9 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": ExtResource("15_op7ga")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_u1c27")
 }],
 "loop": 1,
 "name": &"walk",
@@ -95,5 +99,5 @@ script = ExtResource("1_onrkg")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=241752309]
 scale = Vector2(1.3709677, 1.3709677)
 sprite_frames = SubResource("SpriteFrames_86ap7")
-animation = &"idle"
+animation = &"walk"
 offset = Vector2(0, -130.5)

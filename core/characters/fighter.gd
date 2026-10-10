@@ -3,10 +3,10 @@ extends CharacterBody2D
 
 # Padrão de tamanho de TODOS os lutadores. Cada personagem pode ter sprites de
 # qualquer resolução: o Fighter escala o AnimatedSprite2D para que o frame de
-# referência ("idle") fique com BODY_HEIGHT px de altura na tela, encosta os
-# pés na origem do nó e monta a hitbox com o mesmo tamanho para todo mundo.
+# referência ("idle") fique com BODY_HEIGHT px de altura na tela e, a cada
+# frame, encosta o fundo do desenho na origem do nó (os pés no chão).
 # Por isso a cena do personagem deve ter o nó raiz com scale 1 e todos os
-# frames exportados no mesmo canvas, com os pés na mesma linha (ver README).
+# frames com a mesma largura e o corpo centralizado nela (ver README).
 #
 # Existem três "caixas" de colisão:
 # - CollisionShape2D (retângulo): corpo físico, para andar, pular e limitar
@@ -33,6 +33,16 @@ const ATTACK_FRONT_X := HITBOX_SIZE.x / 2.0
 # Duração de TODO golpe (soco em pé, ataque agachado...), em segundos, não
 # importa quantos frames a animação tenha: os frames dividem esse tempo.
 const ATTACK_DURATION := 0.18
+# Recuperação (como no Street Fighter): depois de um golpe o lutador fica
+# parado na pose, sem atacar nem andar, e apertar ataque nesse tempo não faz
+# nada. É o que impede ficar apertando sem parar. Encadear o próximo golpe
+# DURANTE o atual (combo) continua valendo.
+const ATTACK_RECOVERY := 0.2
+# Recuperação maior depois do último golpe de um combo completo.
+const COMBO_RECOVERY := 0.5
+# Agachar e levantar: depois de trocar de postura, ela fica travada por esse
+# tempo. Apertar e soltar rápido não faz o lutador ficar subindo e descendo.
+const CROUCH_LOCK := 0.25
 # Quanto um lutador pode entrar no outro, em fração da largura do desenho.
 # 0 = só se encostam, 0.5 = até metade, 1 = atravessa.
 const MAX_OVERLAP := 0.5
@@ -58,6 +68,13 @@ var _shape_cache: Dictionary = {}
 var _current_boxes: Array = []
 # Quem já levou dano do golpe atual (um golpe acerta cada alvo uma vez só).
 var _already_hit: Array[Fighter] = []
+# Área desenhada de cada textura (Rect2), em px da textura.
+var _drawn_rects: Dictionary = {}
+# Até quando (Time.get_ticks_msec) o lutador está em recuperação.
+var _recovery_until_ms := 0
+# Postura atual (agachado ou não) e até quando ela está travada.
+var _crouching := false
+var _crouch_locked_until_ms := 0
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var hitbox: CollisionShape2D = get_node_or_null("CollisionShape2D")
@@ -99,7 +116,17 @@ func heal(amount: int) -> void:
 
 func die() -> void:
 	died.emit()
+	# Para de ler os controles (o _physics_process da subclasse), mas o corpo
+	# continua sob gravidade: quem morre no ar cai até o chão.
 	set_physics_process(false)
+	get_tree().physics_frame.connect(_fall_while_dead)
+
+
+func _fall_while_dead() -> void:
+	velocity.x = move_toward(velocity.x, 0, 20.0)
+	if not is_on_floor():
+		velocity += get_gravity() * get_physics_process_delta_time()
+	move_and_slide()
 
 
 # Subclasses: retorne true enquanto o frame atual for um golpe.
@@ -112,18 +139,46 @@ func begin_attack() -> void:
 	_already_hit.clear()
 
 
-# Toca um golpe com a duração padrão (ATTACK_DURATION). `frames` escolhe quais
-# frames da animação mostrar; vazio = todos. Use com await.
+# Toca um golpe com a duração padrão (ATTACK_DURATION) e, no fim, entra em
+# recuperação (ATTACK_RECOVERY). `frames` escolhe quais frames da animação
+# mostrar; vazio = todos. Use com await.
 func play_attack(animation: StringName, frames: Array[int] = []) -> void:
 	var shown: Array[int] = frames.duplicate()
 	if shown.is_empty():
 		shown.assign(range(sprite.sprite_frames.get_frame_count(animation)))
+	# Morto não golpeia: um combo em andamento não pode trocar a animação de morte.
+	if current_health <= 0:
+		return
 	begin_attack()
 	sprite.play(animation)
 	sprite.pause()
 	for frame in shown:
+		if current_health <= 0:
+			return
 		sprite.frame = frame
 		await get_tree().create_timer(ATTACK_DURATION / shown.size()).timeout
+	start_recovery(ATTACK_RECOVERY)
+
+
+# Deixa o lutador em recuperação por `seconds` (nunca encurta uma já em andamento).
+func start_recovery(seconds: float) -> void:
+	_recovery_until_ms = maxi(_recovery_until_ms, Time.get_ticks_msec() + roundi(seconds * 1000.0))
+
+
+func is_recovering() -> bool:
+	return Time.get_ticks_msec() < _recovery_until_ms
+
+
+# Subclasses: chame todo frame com o botão de agachar e use o retorno como
+# "está agachado". Só troca de postura depois de CROUCH_LOCK; no ar nunca
+# fica agachado (e sair do chão não tem trava).
+func update_crouch(wants_to_crouch: bool) -> bool:
+	if not is_on_floor():
+		_crouching = false
+	elif wants_to_crouch != _crouching and Time.get_ticks_msec() >= _crouch_locked_until_ms:
+		_crouching = wants_to_crouch
+		_crouch_locked_until_ms = Time.get_ticks_msec() + roundi(CROUCH_LOCK * 1000.0)
+	return _crouching
 
 
 func _set_health(value: int) -> void:
@@ -147,16 +202,15 @@ func _check_hits() -> void:
 
 func _apply_standard_size() -> void:
 	var reference := sprite.sprite_frames.get_frame_texture(REFERENCE_ANIMATION, 0)
-	# Área realmente desenhada do frame de referência (sem a margem transparente).
-	var image := reference.get_image()
-	if image.is_compressed():
-		image.decompress()
-	var body := image.get_used_rect()
+	var body := _drawn_rect(reference)
 
 	sprite.centered = true
 	sprite.scale = Vector2.ONE * (BODY_HEIGHT / body.size.y)
-	# offset é em pixels da textura: leva o pé (fundo da área desenhada) para y = 0.
-	sprite.offset = Vector2(0, reference.get_height() / 2.0 - body.end.y)
+	# Cada frame tem a altura do próprio desenho: a cada troca de frame, o pé
+	# (fundo do desenho) desse frame é levado para y = 0.
+	sprite.frame_changed.connect(_align_frame)
+	sprite.animation_changed.connect(_align_frame)
+	_align_frame()
 
 	if hitbox == null:
 		hitbox = CollisionShape2D.new()
@@ -164,12 +218,37 @@ func _apply_standard_size() -> void:
 		add_child(hitbox)
 
 	# Ponta da frente do desenho (o personagem olha para a direita), em px do lutador.
-	var front := (body.end.x - reference.get_width() / 2.0 + sprite.offset.x) * sprite.scale.x + sprite.position.x
+	var front := (body.end.x - reference.get_width() / 2.0) * sprite.scale.x + sprite.position.x
 	var shape := RectangleShape2D.new()
 	shape.size = Vector2(2.0 * front * (1.0 - MAX_OVERLAP), HITBOX_SIZE.y)
 	hitbox.shape = shape
 	hitbox.scale = Vector2.ONE
 	hitbox.position = Vector2(0, -HITBOX_SIZE.y / 2.0)
+
+
+# Área realmente desenhada da textura (sem a margem transparente). Usa o mesmo
+# contorno da hurtbox, que ignora pixels quase transparentes (brilho, sombra
+# suave): eles não podem mudar o tamanho nem a altura do personagem.
+func _drawn_rect(texture: Texture2D) -> Rect2:
+	if _drawn_rects.has(texture):
+		return _drawn_rects[texture]
+	var points := PackedVector2Array()
+	for outline in SpriteShapes.outlines(texture):
+		points.append_array(outline)
+	var rect := Rect2(points[0], Vector2.ZERO)
+	for point in points:
+		rect = rect.expand(point)
+	_drawn_rects[texture] = rect
+	return rect
+
+
+# offset (em px da textura) que coloca o fundo do desenho deste frame em y = 0.
+func _frame_offset(texture: Texture2D) -> Vector2:
+	return Vector2(0, texture.get_height() / 2.0 - _drawn_rect(texture).end.y)
+
+
+func _align_frame() -> void:
+	sprite.offset = _frame_offset(sprite.sprite_frames.get_frame_texture(sprite.animation, sprite.frame))
 
 
 func _create_boxes() -> void:
@@ -187,9 +266,16 @@ func _create_boxes() -> void:
 	add_child(_attack_box)
 
 	# Calcula todos os frames agora, para não engasgar no meio da luta.
+	var canvas_width := sprite.sprite_frames.get_frame_texture(REFERENCE_ANIMATION, 0).get_width()
 	for animation in sprite.sprite_frames.get_animation_names():
 		for frame in sprite.sprite_frames.get_frame_count(animation):
 			var texture := sprite.sprite_frames.get_frame_texture(animation, frame)
+			# A altura de cada frame é a do próprio desenho, mas a largura é fixa:
+			# o corpo fica no meio da imagem, então outra largura desloca o
+			# personagem para o lado (ver README).
+			if texture.get_width() != canvas_width:
+				push_warning("%s: frame %d de \"%s\" tem %d px de largura, mas o idle tem %d. Exporte todos os frames com a mesma largura." % [
+					name, frame, animation, texture.get_width(), canvas_width])
 			_shapes_for(texture, 1.0)
 			_shapes_for(texture, -1.0)
 
@@ -240,7 +326,7 @@ func _shapes_for(texture: Texture2D, side: float) -> Dictionary:
 		# Pixels da textura -> coordenadas do lutador (mesma conta do AnimatedSprite2D).
 		var polygon := PackedVector2Array()
 		for point in outline:
-			polygon.append((point - texture_size / 2.0 + sprite.offset) * sprite.scale + sprite.position)
+			polygon.append((point - texture_size / 2.0 + _frame_offset(texture)) * sprite.scale + sprite.position)
 		var whole: Array[PackedVector2Array] = [polygon]
 		body.append_array(_to_convex_shapes(whole, side))
 		attack.append_array(_to_convex_shapes(Geometry2D.intersect_polygons(polygon, front), side))

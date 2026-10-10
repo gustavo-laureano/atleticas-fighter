@@ -14,5 +14,5 @@ func _ready() -> void:
 
 
 func setup(data: CharacterData) -> void:
-	icon = data.portrait
+	icon = data.face if data.face else data.portrait
 	tooltip_text = data.display_name

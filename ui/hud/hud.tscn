@@ -1,26 +1,17 @@
 [gd_scene format=3 uid="uid://ispfrgluegis"]
 
 [ext_resource type="Script" uid="uid://bi5gyiniet0xu" path="res://ui/hud/hud.gd" id="1_kdjhy"]
-[ext_resource type="Texture2D" uid="uid://bwk2f2jymbrxq" path="res://ui/hud/health_bar.png" id="1_m7ell"]
+[ext_resource type="Script" path="res://ui/hud/life_bars.gd" id="2_bars"]
 
 [node name="CanvasLayer" type="CanvasLayer" unique_id=613537073]
 script = ExtResource("1_kdjhy")
 
-[node name="ColorRect_background" type="ColorRect" parent="." unique_id=125216100]
-offset_left = 42.999985
-offset_top = 52.0
-offset_right = 333.0
-offset_bottom = 92.0
-color = Color(0, 0, 0, 1)
-
-[node name="ColorRect_fill" type="ColorRect" parent="." unique_id=522702029]
-offset_left = 42.999985
-offset_top = 52.0
-offset_right = 333.0
-offset_bottom = 92.0
-color = Color(0.91764706, 0.34901962, 0, 1)
-
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=597352980]
-position = Vector2(187.99998, 70)
-scale = Vector2(0.16022098, 0.160221)
-texture = ExtResource("1_m7ell")
+[node name="LifeBars" type="Control" parent="." unique_id=1704518822]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_bars")
