@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://brxjlttq5b32p"
-path="res://.godot/imported/panther_frame_02.png-1fd0136d998c92f9e109d69ff40c86d8.ctex"
+uid="uid://bqa8hfhfpegv1"
+path="res://.godot/imported/ataque_02_final.png-3ba3999156521592fc60b7063ec5affa.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/bravios/special/panther_frame_02.png"
-dest_files=["res://.godot/imported/panther_frame_02.png-1fd0136d998c92f9e109d69ff40c86d8.ctex"]
+source_file="res://characters/bravios/special/ataque_02_final.png"
+dest_files=["res://.godot/imported/ataque_02_final.png-3ba3999156521592fc60b7063ec5affa.ctex"]
 
 [params]
 

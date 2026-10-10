@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://mp5el2bpfua5"
-path="res://.godot/imported/panther_frame_03.png-6755d433e9e270e3e7cb8022dc952c8d.ctex"
+uid="uid://dx0b0rygbr6g6"
+path="res://.godot/imported/ataque_04_sem_bola.png-a199bd4c3e4909a843fc17a3d30ef8db.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/bravios/special/panther_frame_03.png"
-dest_files=["res://.godot/imported/panther_frame_03.png-6755d433e9e270e3e7cb8022dc952c8d.ctex"]
+source_file="res://characters/bravios/special/ataque_04_sem_bola.png"
+dest_files=["res://.godot/imported/ataque_04_sem_bola.png-a199bd4c3e4909a843fc17a3d30ef8db.ctex"]
 
 [params]
 
