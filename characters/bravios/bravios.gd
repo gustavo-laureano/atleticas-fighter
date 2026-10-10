@@ -7,11 +7,11 @@ const MAX_JUMPS := 2
 const COMBO_WINDOW_MS := 450
 const COMBO_ANIMATION := &"combo"
 const COMBO_SIZE := 3
-const SPECIAL_ANIMATION := &"special_attack"
+const SPECIAL_ANIMATION := &"special"
 const SPECIAL_DAMAGE := 4
 # Duração da animação inteira, como um Super Art do Street Fighter 6 (~78
-# frames a 60 fps). O tempo é dividido pela "Duração" de cada frame no
-# SpriteFrames: aumente a do frame do acerto para ele ficar mais na tela.
+# frames a 60 fps). O frame do acerto tem "Duração" 1.5 no SpriteFrames, então
+# o golpe sai em ~0,46 s e fica ativo ~0,23 s.
 const SPECIAL_DURATION := 1.3
 const SPECIAL_RECOVERY := 0.6
 # Só este frame do especial acerta (panther_frame_04, contando do 0).
