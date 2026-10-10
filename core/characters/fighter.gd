@@ -22,6 +22,7 @@ extends CharacterBody2D
 # Para ver tudo isso no jogo: Depurar > Formas de Colisão Visíveis.
 
 signal health_changed(current: int, maximum: int)
+signal special_changed(current: int, maximum: int)
 signal died
 
 const BODY_HEIGHT := 500.0
@@ -48,6 +49,13 @@ const CROUCH_LOCK := 0.25
 const MAX_OVERLAP := 0.5
 # Camada de física 3 ("hurtbox" em Projeto > Configurações > Nomes de Camadas).
 const HURTBOX_LAYER := 1 << 2
+# Barra de especial (Super Gauge, como no Street Fighter): começa vazia, enche
+# ao acertar golpes e ao apanhar, e o especial só sai com ela cheia.
+const SPECIAL_MAX := 100
+const SPECIAL_GAIN_ON_HIT := 15
+const SPECIAL_GAIN_ON_DAMAGE := 10
+# Quanto tempo a pose de aterrissagem ("land") aparece ao tocar o chão.
+const LAND_MS := 120
 
 @export var max_health: int = 10
 @export var attack_damage: int = 1
@@ -57,6 +65,7 @@ const HURTBOX_LAYER := 1 << 2
 @export_range(1, 2) var player_id: int = 1
 
 var current_health: int = 0
+var current_special: int = 0
 
 var _hurtbox := Area2D.new()
 var _attack_box := Area2D.new()
@@ -68,6 +77,8 @@ var _shape_cache: Dictionary = {}
 var _current_boxes: Array = []
 # Quem já levou dano do golpe atual (um golpe acerta cada alvo uma vez só).
 var _already_hit: Array[Fighter] = []
+# Dano do golpe atual (definido em begin_attack).
+var _attack_damage_now := 0
 # Área desenhada de cada textura (Rect2), em px da textura.
 var _drawn_rects: Dictionary = {}
 # Até quando (Time.get_ticks_msec) o lutador está em recuperação.
@@ -75,6 +86,8 @@ var _recovery_until_ms := 0
 # Postura atual (agachado ou não) e até quando ela está travada.
 var _crouching := false
 var _crouch_locked_until_ms := 0
+var _was_on_floor := true
+var _land_until_ms := 0
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var hitbox: CollisionShape2D = get_node_or_null("CollisionShape2D")
@@ -85,6 +98,7 @@ func _ready() -> void:
 	_create_boxes()
 	current_health = max_health
 	health_changed.emit(current_health, max_health)
+	special_changed.emit(current_special, SPECIAL_MAX)
 
 
 # Roda todo frame em todos os lutadores (as subclasses usam só _physics_process).
@@ -103,6 +117,7 @@ func take_damage(amount: int) -> void:
 	if amount <= 0 or current_health <= 0:
 		return
 	_set_health(current_health - amount)
+	gain_special(SPECIAL_GAIN_ON_DAMAGE)
 	# Pisca vermelho para mostrar que apanhou.
 	sprite.modulate = Color(1, 0.4, 0.4)
 	create_tween().tween_property(sprite, "modulate", Color.WHITE, 0.2)
@@ -112,6 +127,24 @@ func heal(amount: int) -> void:
 	if amount <= 0 or current_health <= 0:
 		return
 	_set_health(current_health + amount)
+
+
+func gain_special(amount: int) -> void:
+	if amount <= 0 or current_health <= 0:
+		return
+	_set_special(current_special + amount)
+
+
+func is_special_ready() -> bool:
+	return current_special >= SPECIAL_MAX
+
+
+# Gasta a barra inteira. Retorna false (e não gasta) se ela não estava cheia.
+func spend_special() -> bool:
+	if not is_special_ready():
+		return false
+	_set_special(0)
+	return true
 
 
 func die() -> void:
@@ -135,28 +168,36 @@ func _is_attack_frame() -> bool:
 
 
 # Subclasses: chame no início de cada golpe, para ele poder acertar de novo.
-func begin_attack() -> void:
+# `damage` < 0 usa o attack_damage do lutador.
+func begin_attack(damage := -1) -> void:
 	_already_hit.clear()
+	_attack_damage_now = attack_damage if damage < 0 else damage
 
 
-# Toca um golpe com a duração padrão (ATTACK_DURATION) e, no fim, entra em
-# recuperação (ATTACK_RECOVERY). `frames` escolhe quais frames da animação
-# mostrar; vazio = todos. Use com await.
-func play_attack(animation: StringName, frames: Array[int] = []) -> void:
+# Toca um golpe que dura `duration` segundos e, no fim, entra em recuperação
+# (ATTACK_RECOVERY). `frames` escolhe quais frames da animação mostrar;
+# vazio = todos. `damage` < 0 usa o attack_damage. Use com await.
+# O tempo é dividido pela "Duração" relativa de cada frame no SpriteFrames:
+# um frame com 2.0 fica o dobro do tempo de um com 1.0.
+func play_attack(animation: StringName, frames: Array[int] = [], duration := ATTACK_DURATION, damage := -1) -> void:
 	var shown: Array[int] = frames.duplicate()
 	if shown.is_empty():
 		shown.assign(range(sprite.sprite_frames.get_frame_count(animation)))
+	var total_weight := 0.0
+	for frame in shown:
+		total_weight += sprite.sprite_frames.get_frame_duration(animation, frame)
 	# Morto não golpeia: um combo em andamento não pode trocar a animação de morte.
 	if current_health <= 0:
 		return
-	begin_attack()
+	begin_attack(damage)
 	sprite.play(animation)
 	sprite.pause()
 	for frame in shown:
 		if current_health <= 0:
 			return
 		sprite.frame = frame
-		await get_tree().create_timer(ATTACK_DURATION / shown.size()).timeout
+		var weight := sprite.sprite_frames.get_frame_duration(animation, frame)
+		await get_tree().create_timer(duration * weight / total_weight).timeout
 	start_recovery(ATTACK_RECOVERY)
 
 
@@ -181,6 +222,29 @@ func update_crouch(wants_to_crouch: bool) -> bool:
 	return _crouching
 
 
+# Subclasses: chame uma vez por frame, depois do move_and_slide. Retorna true
+# durante LAND_MS depois de tocar o chão (hora de mostrar a pose "land").
+func update_landing() -> bool:
+	if is_on_floor() and not _was_on_floor:
+		_land_until_ms = Time.get_ticks_msec() + LAND_MS
+	_was_on_floor = is_on_floor()
+	return is_on_floor() and Time.get_ticks_msec() < _land_until_ms
+
+
+# Começa a animação do zero (ex.: cada pulo, inclusive o segundo, no ar).
+func restart_animation(animation: StringName) -> void:
+	sprite.play(animation)
+	sprite.frame = 0
+
+
+# Use no lugar de sprite.play() quando chamar todo frame. No Godot 4, play()
+# numa animação sem loop que já terminou recomeça do início: o pulo tocaria
+# de novo no meio do ar.
+func play_animation(animation: StringName) -> void:
+	if sprite.animation != animation or not sprite.is_playing() and sprite.sprite_frames.get_animation_loop(animation):
+		sprite.play(animation)
+
+
 func _set_health(value: int) -> void:
 	var new_health := clampi(value, 0, max_health)
 	if new_health == current_health:
@@ -191,13 +255,22 @@ func _set_health(value: int) -> void:
 		die()
 
 
+func _set_special(value: int) -> void:
+	var new_special := clampi(value, 0, SPECIAL_MAX)
+	if new_special == current_special:
+		return
+	current_special = new_special
+	special_changed.emit(current_special, SPECIAL_MAX)
+
+
 func _check_hits() -> void:
 	for area in _attack_box.get_overlapping_areas():
 		var target := area.get_parent() as Fighter
 		if target == null or target == self or target in _already_hit:
 			continue
 		_already_hit.append(target)
-		target.take_damage(attack_damage)
+		target.take_damage(_attack_damage_now)
+		gain_special(SPECIAL_GAIN_ON_HIT)
 
 
 func _apply_standard_size() -> void:

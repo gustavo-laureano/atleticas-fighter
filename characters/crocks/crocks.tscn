@@ -4,11 +4,14 @@
 [ext_resource type="Texture2D" uid="uid://bdog0l4g2a4xg" path="res://characters/crocks/die/1.png" id="2_die1"]
 [ext_resource type="Texture2D" uid="uid://n62vg64dobic" path="res://characters/crocks/die/2.png" id="2_die2"]
 [ext_resource type="Texture2D" uid="uid://bjp6ydkawsqrv" path="res://characters/crocks/die/3.png" id="2_die3"]
-[ext_resource type="Texture2D" uid="uid://b1eo6iolmubfa" path="res://characters/crocks/jump/1.png" id="3_ivps1"]
-[ext_resource type="Texture2D" uid="uid://bn0astuk2lnsu" path="res://characters/crocks/jump/2.png" id="4_urp6f"]
-[ext_resource type="Texture2D" uid="uid://xkbif344ueb8" path="res://characters/crocks/jump/3.png" id="5_bwjto"]
+[ext_resource type="Texture2D" uid="uid://od6435nvru7t" path="res://characters/crocks/jump/1.png" id="3_jump1"]
+[ext_resource type="Texture2D" uid="uid://bayuc4f5p6mfi" path="res://characters/crocks/jump/2.png" id="4_jump2"]
+[ext_resource type="Texture2D" uid="uid://dk7cvnfiqm73u" path="res://characters/crocks/jump/3.png" id="5_jump3"]
 [ext_resource type="Texture2D" uid="uid://cadurrye0twgl" path="res://characters/crocks/idle/idle.png" id="7_bwjto"]
 [ext_resource type="Texture2D" uid="uid://dfpxlflqbcwov" path="res://characters/crocks/sneak/1.png" id="9_mmi5h"]
+[ext_resource type="Texture2D" uid="uid://riplj2by0hqs" path="res://characters/crocks/sneak-walk/1.png" id="10_sw1"]
+[ext_resource type="Texture2D" uid="uid://c8gadr4o76yn8" path="res://characters/crocks/sneak-walk/2.png" id="11_sw2"]
+[ext_resource type="Texture2D" uid="uid://dx2bhao880j1p" path="res://characters/crocks/sneak-walk/3.png" id="12_sw3"]
 [ext_resource type="Texture2D" uid="uid://b013d6o4yjsgh" path="res://characters/crocks/walk/1.png" id="13_606se"]
 [ext_resource type="Texture2D" uid="uid://cc76g3wuhboqa" path="res://characters/crocks/walk/2.png" id="14_u1c27"]
 [ext_resource type="Texture2D" uid="uid://cnt78odm80rco" path="res://characters/crocks/walk/3.png" id="15_op7ga"]
@@ -31,7 +34,7 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("5_bwjto")
+"texture": ExtResource("4_jump2")
 }],
 "loop": 1,
 "name": &"fall",
@@ -47,16 +50,21 @@ animations = [{
 }, {
 "frames": [{
 "duration": 0.5,
-"texture": ExtResource("3_ivps1")
+"texture": ExtResource("3_jump1")
 }, {
-"duration": 2.5,
-"texture": ExtResource("4_urp6f")
-}, {
-"duration": 2.0,
-"texture": ExtResource("5_bwjto")
+"duration": 1.0,
+"texture": ExtResource("4_jump2")
 }],
-"loop": 1,
+"loop": 0,
 "name": &"jump",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_jump3")
+}],
+"loop": 0,
+"name": &"land",
 "speed": 5.0
 }, {
 "frames": [{
@@ -68,8 +76,17 @@ animations = [{
 "speed": 5.0
 }, {
 "frames": [{
-"duration": 0.5,
-"texture": ExtResource("3_ivps1")
+"duration": 1.3,
+"texture": ExtResource("10_sw1")
+}, {
+"duration": 1.3,
+"texture": ExtResource("11_sw2")
+}, {
+"duration": 1.3,
+"texture": ExtResource("12_sw3")
+}, {
+"duration": 1.3,
+"texture": ExtResource("11_sw2")
 }],
 "loop": 1,
 "name": &"sneak_walk",
@@ -99,5 +116,5 @@ script = ExtResource("1_onrkg")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=241752309]
 scale = Vector2(1.3709677, 1.3709677)
 sprite_frames = SubResource("SpriteFrames_86ap7")
-animation = &"walk"
+animation = &"idle"
 offset = Vector2(0, -130.5)

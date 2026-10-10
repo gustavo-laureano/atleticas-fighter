@@ -19,7 +19,14 @@
 [ext_resource type="Texture2D" uid="uid://c17y8obh5rbfb" path="res://characters/bravios/sneak/3.png" id="6_sneak3"]
 [ext_resource type="Texture2D" uid="uid://cxussrynlu3vm" path="res://characters/bravios/sneak-attack/1.png" id="10_2nx67"]
 [ext_resource type="Texture2D" uid="uid://b1pffg4xmdh6j" path="res://characters/bravios/sneak-attack/2.png" id="11_rfkog"]
-
+[ext_resource type="Texture2D" uid="uid://bwa78v4j03sv0" path="res://characters/bravios/special/panther_frame_01.png" id="17_frhio"]
+[ext_resource type="Texture2D" uid="uid://brxjlttq5b32p" path="res://characters/bravios/special/panther_frame_02.png" id="18_tyof1"]
+[ext_resource type="Texture2D" uid="uid://mp5el2bpfua5" path="res://characters/bravios/special/panther_frame_03.png" id="19_pus6s"]
+[ext_resource type="Texture2D" uid="uid://bw8mxt2bmcbvk" path="res://characters/bravios/special/panther_frame_04.png" id="20_kw6fe"]
+[ext_resource type="Texture2D" uid="uid://g5a7qr04novo" path="res://characters/bravios/special/panther_frame_05.png" id="21_ntjwf"]
+[ext_resource type="Texture2D" uid="uid://dmuxn0trkxu7b" path="res://characters/bravios/special/panther_frame_06.png" id="22_wt0o1"]
+[ext_resource type="Texture2D" uid="uid://c2nd85qt1ve6d" path="res://characters/bravios/special/panther_frame_07.png" id="23_6g5p0"]
+[ext_resource type="Texture2D" uid="uid://dfw4snrlgbmv" path="res://characters/bravios/special/panther_frame_08.png" id="24_3bkxv"]
 [sub_resource type="SpriteFrames" id="SpriteFrames_86ap7"]
 animations = [{
 "frames": [{
@@ -52,7 +59,7 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("5_lj1o8")
+"texture": ExtResource("4_jump2")
 }],
 "loop": 1,
 "name": &"fall",
@@ -75,6 +82,14 @@ animations = [{
 }],
 "loop": 0,
 "name": &"jump",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_lj1o8")
+}],
+"loop": 0,
+"name": &"land",
 "speed": 5.0
 }, {
 "frames": [{
@@ -112,6 +127,35 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": ExtResource("17_frhio")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_tyof1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_pus6s")
+}, {
+"duration": 1.5,
+"texture": ExtResource("20_kw6fe")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_ntjwf")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_wt0o1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_6g5p0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_3bkxv")
+}],
+"loop": 0,
+"name": &"special",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": ExtResource("3_walk1")
 }, {
 "duration": 1.0,
@@ -134,7 +178,7 @@ script = ExtResource("1_script")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=241752309]
 position = Vector2(0, -3)
 sprite_frames = SubResource("SpriteFrames_86ap7")
-animation = &"combo"
+animation = &"idle"
 offset = Vector2(0, -172.5)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1192811983]

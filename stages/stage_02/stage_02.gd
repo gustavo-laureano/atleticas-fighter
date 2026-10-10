@@ -24,6 +24,7 @@ func _ready() -> void:
 		player.position = spawns[i].position
 		# Conecta antes do add_child para a HUD receber a vida inicial emitida no _ready do Fighter.
 		player.health_changed.connect(hud.set_health.bind(i))
+		player.special_changed.connect(hud.set_special.bind(i))
 		add_child(player)
 		# O jogador 2 começa olhando para o jogador 1.
 		player.sprite.flip_h = player.player_id == 2
