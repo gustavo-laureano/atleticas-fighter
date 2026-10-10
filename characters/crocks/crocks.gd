@@ -29,6 +29,7 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed(action("jump")) and jump_count > 0:
 		velocity.y = JUMP_VELOCITY
 		jump_count -= 1
+		restart_animation(&"jump")
 
 	var direction := Input.get_axis(action("left"), action("right"))
 	var current_speed := SPEED * 0.4 if is_sneaking else SPEED
@@ -46,11 +47,15 @@ func _update_animation() -> void:
 	if velocity.x != 0:
 		sprite.flip_h = velocity.x < 0
 
+	var landing := update_landing()
+
 	if not is_on_floor():
-		sprite.play("jump" if velocity.y < 0 else "fall")
+		play_animation(&"jump" if velocity.y < 0 else &"fall")
+	elif landing and not is_sneaking:
+		play_animation(&"land")
 	elif is_sneaking:
-		sprite.play("sneak_walk" if velocity.x != 0 else "sneak")
+		play_animation(&"sneak_walk" if velocity.x != 0 else &"sneak")
 	elif velocity.x != 0:
-		sprite.play("walk")
+		play_animation(&"walk")
 	else:
-		sprite.play("idle")
+		play_animation(&"idle")

@@ -60,7 +60,7 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("5_lj1o8")
+"texture": ExtResource("4_jump2")
 }],
 "loop": 1,
 "name": &"fall",
@@ -83,6 +83,14 @@ animations = [{
 }],
 "loop": 0,
 "name": &"jump",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_lj1o8")
+}],
+"loop": 0,
+"name": &"land",
 "speed": 5.0
 }, {
 "frames": [{
@@ -169,7 +177,7 @@ size = Vector2(150, 320)
 script = ExtResource("1_script")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=241752309]
-position = Vector2(-120, 656)
+position = Vector2(0, -3)
 sprite_frames = SubResource("SpriteFrames_86ap7")
 animation = &"special_attack"
 frame = 3

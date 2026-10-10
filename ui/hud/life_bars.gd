@@ -30,6 +30,15 @@ const COLOR_KO_BORDER := Color("2b6ef0")
 const COLOR_KO_BG := Color("101828")
 const COLOR_KO_TEXT := Color("ff4a2a")
 
+# Barra de especial, embaixo da vida, saindo do lado do rosto.
+const SPECIAL_HEIGHT := 16
+const SPECIAL_GAP := 14
+const SPECIAL_LENGTH := 0.6
+const COLOR_SPECIAL_EMPTY := Color("10162e")
+const COLOR_SPECIAL := Color("2b6ef0")
+const COLOR_SPECIAL_FULL := Color("ffd23a")
+const SPECIAL_BLINK_MS := 250
+
 # Recorte automático do rosto (frações da altura do desenho do portrait).
 const FACE_BAND := 0.06
 const FACE_SIDE := 0.24
@@ -41,6 +50,7 @@ var _faces: Array[Texture2D] = [null, null]
 var _health: Array[float] = [1.0, 1.0]
 var _trail: Array[float] = [1.0, 1.0]
 var _trail_tweens: Array[Tween] = [null, null]
+var _special: Array[float] = [0.0, 0.0]
 var _time_left := float(ROUND_TIME)
 
 
@@ -69,12 +79,22 @@ func set_health(current: int, maximum: int, index: int) -> void:
 	queue_redraw()
 
 
+func set_special(current: int, maximum: int, index: int) -> void:
+	if maximum <= 0:
+		return
+	_special[index] = clampf(float(current) / maximum, 0.0, 1.0)
+	queue_redraw()
+
+
 func _set_trail(value: float, index: int) -> void:
 	_trail[index] = value
 	queue_redraw()
 
 
 func _process(delta: float) -> void:
+	# Barra cheia pisca: precisa redesenhar todo frame enquanto estiver cheia.
+	if _special.has(1.0):
+		queue_redraw()
 	if _time_left <= 0.0:
 		return
 	var before := ceili(_time_left)
@@ -118,6 +138,28 @@ func _draw_side(index: int, center: float) -> void:
 	draw_rect(bar, COLOR_EMPTY)
 	_draw_fill(bar, _trail[index], right_side, COLOR_TRAIL, COLOR_TRAIL.lightened(0.3), COLOR_TRAIL.darkened(0.3))
 	_draw_fill(bar, _health[index], right_side, COLOR_FILL, COLOR_FILL_LIGHT, COLOR_FILL_DARK)
+	_draw_special(index, bar, right_side)
+
+
+# Barra de especial embaixo da vida, mais curta e encostada no lado do rosto.
+# Cheia, fica amarela piscando com "SUPER".
+func _draw_special(index: int, life_bar: Rect2, right_side: bool) -> void:
+	var length := roundf(life_bar.size.x * SPECIAL_LENGTH)
+	var x := life_bar.end.x - length if right_side else life_bar.position.x
+	var bar := Rect2(x, life_bar.end.y + BORDER * 2 + SPECIAL_GAP, length, SPECIAL_HEIGHT)
+	_draw_frame(bar)
+	draw_rect(bar, COLOR_SPECIAL_EMPTY)
+	var full := _special[index] >= 1.0
+	var base := COLOR_SPECIAL
+	if full:
+		var blink_on := (Time.get_ticks_msec() / SPECIAL_BLINK_MS) % 2 == 0
+		base = COLOR_SPECIAL_FULL if blink_on else Color.WHITE
+	_draw_fill(bar, _special[index], right_side, base, base.lightened(0.4), base.darkened(0.3))
+	if full:
+		var text_pos := Vector2(bar.position.x, bar.end.y + 34)
+		var align := HORIZONTAL_ALIGNMENT_RIGHT if right_side else HORIZONTAL_ALIGNMENT_LEFT
+		draw_string_outline(FONT, text_pos, "SUPER", align, bar.size.x, 32, 8, COLOR_OUTLINE)
+		draw_string(FONT, text_pos, "SUPER", align, bar.size.x, 32, COLOR_SPECIAL_FULL)
 
 
 # Desenha a foto preenchendo o quadro sem distorcer (corta as sobras do centro

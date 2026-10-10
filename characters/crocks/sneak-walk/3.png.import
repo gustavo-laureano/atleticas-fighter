@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://biqeho4arhcnr"
-path="res://.godot/imported/3_old.png-8c213e7b99d6bd5df94bc7a1d8a916de.ctex"
+uid="uid://dx2bhao880j1p"
+path="res://.godot/imported/3.png-a2cb4f3a9a7ae1cfe68ead0ef524017b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/crocks/jump/legacy/3_old.png"
-dest_files=["res://.godot/imported/3_old.png-8c213e7b99d6bd5df94bc7a1d8a916de.ctex"]
+source_file="res://characters/crocks/sneak-walk/3.png"
+dest_files=["res://.godot/imported/3.png-a2cb4f3a9a7ae1cfe68ead0ef524017b.ctex"]
 
 [params]
 
