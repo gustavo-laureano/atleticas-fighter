@@ -23,8 +23,17 @@
 [ext_resource type="Texture2D" uid="uid://xxdlft6cf2ji" path="res://characters/bravios/special/2.png" id="18_spec2"]
 [ext_resource type="Texture2D" uid="uid://ujaq8uo5fs6x" path="res://characters/bravios/special/3.png" id="19_spec3"]
 [ext_resource type="Texture2D" uid="uid://boy7284latift" path="res://characters/bravios/special/4.png" id="20_spec4"]
+[ext_resource type="Texture2D" path="res://characters/bravios/hurt/1.png" id="40_hurt1"]
 [sub_resource type="SpriteFrames" id="SpriteFrames_86ap7"]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("40_hurt1")
+}],
+"loop": 0,
+"name": &"hurt",
+"speed": 5.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": ExtResource("4_1b88p")

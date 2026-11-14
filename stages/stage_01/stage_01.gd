@@ -28,3 +28,6 @@ func _ready() -> void:
 		add_child(player)
 		# O jogador 2 começa olhando para o jogador 1.
 		player.sprite.flip_h = player.player_id == 2
+
+	# Começa a luta: toca o áudio FIGHT e mostra "FIGHT!" na tela.
+	add_child(FightIntro.new())

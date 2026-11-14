@@ -25,8 +25,17 @@ signal health_changed(current: int, maximum: int)
 signal special_changed(current: int, maximum: int)
 signal died
 
-const BODY_HEIGHT := 500.0
-const HITBOX_SIZE := Vector2(150, 320)
+# Altura do lutador na tela (1080 px de tela). HITBOX_SIZE é o corpo físico e
+# deve acompanhar: ~64% do BODY_HEIGHT de altura, 30% de largura.
+const BODY_HEIGHT := 400.0
+const HITBOX_SIZE := Vector2(120, 256)
+# Gravidade dos lutadores (multiplica a do projeto). Maior = pulo mais rápido,
+# menos "flutuando". O pulo precisa subir mais que BODY_HEIGHT para passar por
+# cima do outro.
+const GRAVITY_SCALE := 1.8
+# O segundo pulo (no ar) usa essa fração da força do primeiro, para os dois
+# juntos não levarem o lutador para fora da tela.
+const AIR_JUMP_FACTOR := 0.6
 const REFERENCE_ANIMATION := &"idle"
 # A AttackBox só considera o desenho a partir dessa distância do centro do
 # corpo, na direção para onde o lutador olha (punho, pé, etc.).
@@ -38,9 +47,33 @@ const ATTACK_DURATION := 0.18
 # parado na pose, sem atacar nem andar, e apertar ataque nesse tempo não faz
 # nada. É o que impede ficar apertando sem parar. Encadear o próximo golpe
 # DURANTE o atual (combo) continua valendo.
-const ATTACK_RECOVERY := 0.2
-# Recuperação maior depois do último golpe de um combo completo.
-const COMBO_RECOVERY := 0.5
+# Street Fighter: golpe leve inteiro = ~0,2 a 0,25 s. Ajuste entre 0.08 e 0.12.
+const ATTACK_RECOVERY := 0.10
+# Recuperação maior depois do último golpe de um combo completo (não cancela).
+const COMBO_RECOVERY := 0.30
+# Depois desse tempo de recuperação (a partir do fim do golpe, ou seja, depois
+# do frame de impacto) andar ou pular CANCELA o resto dela. Tem que ser menor
+# que ATTACK_RECOVERY; 0 = cancela já no fim do golpe, igual a ATTACK_RECOVERY =
+# nunca cancela.
+const RECOVERY_CANCEL_AFTER := 0.04
+# Buffer de ataque: um clique até esse tempo antes de o lutador ficar livre
+# fica guardado e sai sozinho assim que der (SF5: ~3 frames normal, 6 especial;
+# 0.1 s = 6 frames). Muito baixo "perde" o botão, muito alto enfileira golpes.
+const ATTACK_BUFFER := 0.10
+# Janela depois do início do golpe em que ainda dá para virar para o lado que
+# está sendo segurado (bater para trás sem travar).
+const ATTACK_TURN_WINDOW := 0.05
+# Tempo do avanço no início do golpe (a distância é por golpe, em cada lutador).
+const LUNGE_TIME := 0.06
+# Andar: tempo para chegar na velocidade máxima e para parar. 0 = instantâneo.
+const WALK_ACCEL_TIME := 0.06
+const WALK_DECEL_TIME := 0.05
+# Pulo: um apertar de pulo até esse tempo antes de poder pular fica guardado.
+const JUMP_BUFFER := 0.10
+# Pulo de altura variável: soltar o botão com o lutador subindo limita a
+# velocidade de subida a essa fração da do pulo (1.0 = altura fixa; 0.5 = o
+# pulo mais curto tem ~1/4 da altura).
+const JUMP_CUT := 0.5
 # Agachar e levantar: depois de trocar de postura, ela fica travada por esse
 # tempo. Apertar e soltar rápido não faz o lutador ficar subindo e descendo.
 const CROUCH_LOCK := 0.25
@@ -51,14 +84,32 @@ const MAX_OVERLAP := 0.5
 const HURTBOX_LAYER := 1 << 2
 # Barra de especial (Super Gauge, como no Street Fighter): começa vazia, enche
 # ao acertar golpes e ao apanhar, e o especial só sai com ela cheia.
+# Corpos: um lutador no ar atravessa o outro (para pular por cima). Quando os
+# dois voltam ao chão ainda sobrepostos, são empurrados para os lados nessa
+# velocidade (px/s) até se separarem.
+const PASS_PUSH_SPEED := 450.0
 const SPECIAL_MAX := 100
 const SPECIAL_GAIN_ON_HIT := 15
 const SPECIAL_GAIN_ON_DAMAGE := 10
 # Quanto tempo a pose de aterrissagem ("land") aparece ao tocar o chão.
+# Quanto tempo a pose de dano ("hurt") fica na tela ao apanhar.
+const HURT_TIME := 0.25
+# Empurrão (knockback) de quem apanha de um golpe forte, como o especial: sai
+# na velocidade pedida (px/s) e perde força até parar em KNOCKBACK_TIME.
+const KNOCKBACK_TIME := 0.3
 const LAND_MS := 120
 
-@export var max_health: int = 10
-@export var attack_damage: int = 1
+# Aura branca durante o especial (objects/bola_basquete/aura_especial.png,
+# gerada por tools/gerar_aura.py). Quadro 128x160 de pixel-art, ampliado.
+const AURA_TEXTURE := preload("res://objects/bola_basquete/aura_especial.png")
+const AURA_FRAME := Vector2i(128, 160)
+# Em relação ao sprite do personagem (que é ampliado até BODY_HEIGHT).
+const AURA_SCALE := 3.0
+const AURA_CENTER := Vector2(0, -155)  # centro do corpo, a partir do pe
+const AURA_FPS := 18.0
+
+@export var max_health: int = 100
+@export var attack_damage: int = 4
 # Qual jogador controla este lutador. Define o prefixo das ações de input
 # (Projeto > Configurações > Mapa de Entrada): o jogador 1 usa "p1_jump",
 # "p1_attack"... e o jogador 2 usa "p2_jump", "p2_attack"...
@@ -79,21 +130,43 @@ var _current_boxes: Array = []
 var _already_hit: Array[Fighter] = []
 # Dano do golpe atual (definido em begin_attack).
 var _attack_damage_now := 0
+# Golpe baixo (o do agachado) também acerta quem está agachado; os golpes em
+# pé passam por cima dele.
+var _attack_is_low := false
+# Empurrão (px/s) do golpe atual; 0 = não empurra.
+var _attack_knockback := 0.0
 # Área desenhada de cada textura (Rect2), em px da textura.
 var _drawn_rects: Dictionary = {}
 # Até quando (Time.get_ticks_msec) o lutador está em recuperação.
 var _recovery_until_ms := 0
+var _recovery_started_ms := 0
+var _recovery_cancelable := true
+# Quando o golpe atual começou (para a janela de virar) e até quando o clique
+# guardado e o pulo guardado valem.
+var _attack_started_ms := 0
+var _attack_buffer_until_ms := 0
+var _jump_buffer_until_ms := 0
+# Avanço do golpe: velocidade (px/s, sempre positiva) e até quando dura.
+var _lunge_speed := 0.0
+var _lunge_until_ms := 0
 # Postura atual (agachado ou não) e até quando ela está travada.
 var _crouching := false
 var _crouch_locked_until_ms := 0
 var _was_on_floor := true
 var _land_until_ms := 0
+var _aura: AnimatedSprite2D
+# Até quando a pose de dano ("hurt") aparece, se o lutador tiver essa animação.
+var _hurt_until_ms := 0
+# Empurrão em andamento: velocidade inicial (com sinal) e até quando.
+var _knockback_speed := 0.0
+var _knockback_until_ms := 0
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var hitbox: CollisionShape2D = get_node_or_null("CollisionShape2D")
 
 
 func _ready() -> void:
+	add_to_group("fighters")
 	_apply_standard_size()
 	_create_boxes()
 	current_health = max_health
@@ -102,7 +175,8 @@ func _ready() -> void:
 
 
 # Roda todo frame em todos os lutadores (as subclasses usam só _physics_process).
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	_update_pass_through(delta)
 	_update_boxes()
 	if _is_attack_frame() and current_health > 0:
 		_check_hits()
@@ -121,6 +195,8 @@ func take_damage(amount: int) -> void:
 	# Pisca vermelho para mostrar que apanhou.
 	sprite.modulate = Color(1, 0.4, 0.4)
 	create_tween().tween_property(sprite, "modulate", Color.WHITE, 0.2)
+	if current_health > 0:
+		_hurt_until_ms = Time.get_ticks_msec() + roundi(HURT_TIME * 1000.0)
 
 
 func heal(amount: int) -> void:
@@ -148,6 +224,7 @@ func spend_special() -> bool:
 
 
 func die() -> void:
+	hide_aura(true)
 	died.emit()
 	# Para de ler os controles (o _physics_process da subclasse), mas o corpo
 	# continua sob gravidade: quem morre no ar cai até o chão.
@@ -158,7 +235,7 @@ func die() -> void:
 func _fall_while_dead() -> void:
 	velocity.x = move_toward(velocity.x, 0, 20.0)
 	if not is_on_floor():
-		velocity += get_gravity() * get_physics_process_delta_time()
+		apply_gravity(get_physics_process_delta_time())
 	move_and_slide()
 
 
@@ -169,8 +246,11 @@ func _is_attack_frame() -> bool:
 
 # Subclasses: chame no início de cada golpe, para ele poder acertar de novo.
 # `damage` < 0 usa o attack_damage do lutador.
-func begin_attack(damage := -1) -> void:
+func begin_attack(damage := -1, low := false, knockback := 0.0) -> void:
+	_attack_is_low = low
+	_attack_knockback = knockback
 	_already_hit.clear()
+	_attack_started_ms = Time.get_ticks_msec()
 	_attack_damage_now = attack_damage if damage < 0 else damage
 
 
@@ -179,7 +259,7 @@ func begin_attack(damage := -1) -> void:
 # vazio = todos. `damage` < 0 usa o attack_damage. Use com await.
 # O tempo é dividido pela "Duração" relativa de cada frame no SpriteFrames:
 # um frame com 2.0 fica o dobro do tempo de um com 1.0.
-func play_attack(animation: StringName, frames: Array[int] = [], duration := ATTACK_DURATION, damage := -1) -> void:
+func play_attack(animation: StringName, frames: Array[int] = [], duration := ATTACK_DURATION, damage := -1, low := false) -> void:
 	var shown: Array[int] = frames.duplicate()
 	if shown.is_empty():
 		shown.assign(range(sprite.sprite_frames.get_frame_count(animation)))
@@ -189,7 +269,7 @@ func play_attack(animation: StringName, frames: Array[int] = [], duration := ATT
 	# Morto não golpeia: um combo em andamento não pode trocar a animação de morte.
 	if current_health <= 0:
 		return
-	begin_attack(damage)
+	begin_attack(damage, low)
 	sprite.play(animation)
 	sprite.pause()
 	for frame in shown:
@@ -202,12 +282,208 @@ func play_attack(animation: StringName, frames: Array[int] = [], duration := ATT
 
 
 # Deixa o lutador em recuperação por `seconds` (nunca encurta uma já em andamento).
-func start_recovery(seconds: float) -> void:
-	_recovery_until_ms = maxi(_recovery_until_ms, Time.get_ticks_msec() + roundi(seconds * 1000.0))
+# `cancelable`: se andar/pular pode cortar o fim dela (ver RECOVERY_CANCEL_AFTER).
+func start_recovery(seconds: float, cancelable := true) -> void:
+	var now := Time.get_ticks_msec()
+	var until := now + roundi(seconds * 1000.0)
+	if until > _recovery_until_ms:
+		_recovery_until_ms = until
+		_recovery_started_ms = now
+		_recovery_cancelable = cancelable
 
 
 func is_recovering() -> bool:
 	return Time.get_ticks_msec() < _recovery_until_ms
+
+
+# true quando o movimento já pode cortar a recuperação (depois do impacto).
+func can_cancel_recovery() -> bool:
+	return is_recovering() and _recovery_cancelable \
+		and Time.get_ticks_msec() - _recovery_started_ms >= roundi(RECOVERY_CANCEL_AFTER * 1000.0)
+
+
+func cancel_recovery() -> void:
+	_recovery_until_ms = 0
+	_lunge_until_ms = 0
+	velocity.x = 0.0
+
+
+# Guarda um clique de ataque feito na hora errada (recuperação ou golpe que não
+# é de combo). Use consume_buffered_attack() quando o lutador estiver livre.
+func buffer_attack() -> void:
+	_attack_buffer_until_ms = Time.get_ticks_msec() + roundi(ATTACK_BUFFER * 1000.0)
+
+
+func consume_buffered_attack() -> bool:
+	if Time.get_ticks_msec() < _attack_buffer_until_ms:
+		_attack_buffer_until_ms = 0
+		return true
+	return false
+
+
+# true no começo do golpe: ainda dá para virar para onde o jogador segura.
+func can_turn_now() -> bool:
+	return Time.get_ticks_msec() - _attack_started_ms <= roundi(ATTACK_TURN_WINDOW * 1000.0)
+
+
+# Vira o desenho para o lado de `direction` (-1/+1); 0 mantém o lado atual.
+func face_direction(direction: float) -> void:
+	if direction != 0.0:
+		sprite.flip_h = direction < 0.0
+
+
+# Avanço no início do golpe: anda `distance` px (para onde o lutador olha) em
+# LUNGE_TIME. Leia a velocidade com lunge_velocity() enquanto estiver golpeando.
+func start_lunge(distance: float) -> void:
+	_lunge_speed = distance / LUNGE_TIME
+	_lunge_until_ms = Time.get_ticks_msec() + roundi(LUNGE_TIME * 1000.0)
+
+
+func lunge_velocity() -> float:
+	if Time.get_ticks_msec() >= _lunge_until_ms:
+		return 0.0
+	return -_lunge_speed if sprite.flip_h else _lunge_speed
+
+
+# Andar com aceleração e frenagem curtas. Chame todo frame no lugar do
+# velocity.x = direction * speed.
+func move_horizontal(direction: float, speed: float, delta: float) -> void:
+	var time := WALK_ACCEL_TIME if direction != 0.0 else WALK_DECEL_TIME
+	var step := speed / time * delta if time > 0.0 else INF
+	velocity.x = move_toward(velocity.x, direction * speed, step)
+
+
+# Pulo guardado: chame buffer_jump() ao apertar pulo; quando puder pular, leia
+# has_jump_buffered() e gaste com consume_jump_buffer().
+func buffer_jump() -> void:
+	_jump_buffer_until_ms = Time.get_ticks_msec() + roundi(JUMP_BUFFER * 1000.0)
+
+
+func has_jump_buffered() -> bool:
+	return Time.get_ticks_msec() < _jump_buffer_until_ms
+
+
+func consume_jump_buffer() -> void:
+	_jump_buffer_until_ms = 0
+
+
+# Pulo de altura variável: chame todo frame (depois da gravidade) com o botão
+# de pulo ainda apertado ou não.
+func apply_jump_cut(jump_velocity: float, jump_held: bool) -> void:
+	if velocity.y < 0.0 and not jump_held:
+		velocity.y = maxf(velocity.y, jump_velocity * JUMP_CUT)
+
+
+func apply_gravity(delta: float) -> void:
+	velocity += get_gravity() * GRAVITY_SCALE * delta
+
+
+# true logo depois de apanhar, para quem tem a animação "hurt".
+func is_hurt() -> bool:
+	return Time.get_ticks_msec() < _hurt_until_ms and sprite.sprite_frames.has_animation(&"hurt")
+
+
+# Aura branca atras do personagem, sem precisar de novos frames do especial.
+func show_aura() -> void:
+	hide_aura(true)
+	var frames := SpriteFrames.new()
+	frames.rename_animation(&"default", &"aura")
+	frames.set_animation_speed(&"aura", AURA_FPS)
+	frames.set_animation_loop(&"aura", true)
+	for i in AURA_TEXTURE.get_width() / AURA_FRAME.x:
+		var atlas := AtlasTexture.new()
+		atlas.atlas = AURA_TEXTURE
+		atlas.region = Rect2(i * AURA_FRAME.x, 0, AURA_FRAME.x, AURA_FRAME.y)
+		frames.add_frame(&"aura", atlas)
+	_aura = AnimatedSprite2D.new()
+	_aura.sprite_frames = frames
+	_aura.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	var body_scale := sprite.scale.x
+	_aura.position = AURA_CENTER * body_scale
+	_aura.modulate.a = 0.0
+	add_child(_aura)
+	move_child(_aura, 0)  # desenha antes (atras) do AnimatedSprite2D
+	_aura.play(&"aura")
+	var tween := _aura.create_tween().set_parallel()
+	tween.tween_property(_aura, "modulate:a", 1.0, 0.15)
+	_aura.scale = Vector2.ONE * AURA_SCALE * body_scale * 0.6
+	tween.tween_property(_aura, "scale", Vector2.ONE * AURA_SCALE * body_scale, 0.25) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+func hide_aura(immediately := false) -> void:
+	if not is_instance_valid(_aura):
+		return
+	var aura := _aura
+	_aura = null
+	if immediately:
+		aura.queue_free()
+		return
+	var tween := aura.create_tween()
+	tween.tween_property(aura, "modulate:a", 0.0, 0.2)
+	tween.tween_callback(aura.queue_free)
+
+
+# Empurra este lutador para o lado de `direction` (-1/+1) a `speed` px/s.
+func apply_knockback(direction: float, speed: float) -> void:
+	_knockback_speed = signf(direction) * speed
+	_knockback_until_ms = Time.get_ticks_msec() + roundi(KNOCKBACK_TIME * 1000.0)
+
+
+# Velocidade horizontal do empurrão agora (cai linearmente até zero).
+func knockback_velocity() -> float:
+	var left := _knockback_until_ms - Time.get_ticks_msec()
+	if left <= 0:
+		return 0.0
+	return _knockback_speed * left / (KNOCKBACK_TIME * 1000.0)
+
+
+# Use no lugar de move_and_slide() nos lutadores: soma o empurrão só neste
+# movimento, sem deixá-lo virar parte da velocidade de andar.
+func slide_with_knockback() -> void:
+	var push := knockback_velocity()
+	velocity.x += push
+	move_and_slide()
+	velocity.x -= push
+
+
+func is_crouching() -> bool:
+	return _crouching
+
+
+# Retângulo do corpo físico no mundo (o CollisionShape2D).
+func _body_rect() -> Rect2:
+	var size := (hitbox.shape as RectangleShape2D).size
+	return Rect2(hitbox.global_position - size / 2.0, size)
+
+
+# Passar por cima: enquanto um dos dois está no ar, os corpos não se
+# bloqueiam. Eles só voltam a se bloquear quando os dois estão no chão e não
+# estão mais sobrepostos; se aterrissarem sobrepostos, são empurrados para
+# lados opostos até se separarem.
+func _update_pass_through(delta: float) -> void:
+	for node in get_tree().get_nodes_in_group("fighters"):
+		var other := node as Fighter
+		# Cada par é tratado uma vez só (pelo lutador de menor id).
+		if other == null or other == self or other.get_instance_id() < get_instance_id():
+			continue
+		var ghost := other in get_collision_exceptions()
+		var airborne := not is_on_floor() or not other.is_on_floor()
+		var overlapping := _body_rect().intersects(other._body_rect())
+		if airborne or (ghost and overlapping):
+			if not ghost:
+				add_collision_exception_with(other)
+				other.add_collision_exception_with(self)
+			if overlapping and not airborne:
+				var away := signf(global_position.x - other.global_position.x)
+				if away == 0.0:
+					away = -1.0 if sprite.flip_h else 1.0
+				var step := PASS_PUSH_SPEED * delta * 0.5
+				global_position.x += away * step
+				other.global_position.x -= away * step
+		elif ghost:
+			remove_collision_exception_with(other)
+			other.remove_collision_exception_with(self)
 
 
 # Subclasses: chame todo frame com o botão de agachar e use o retorno como
@@ -268,15 +544,27 @@ func _check_hits() -> void:
 		var target := area.get_parent() as Fighter
 		if target == null or target == self or target in _already_hit:
 			continue
+		# Golpe em pé não acerta quem está agachado.
+		if target.is_crouching() and not _attack_is_low:
+			continue
 		_already_hit.append(target)
-		hit(target, _attack_damage_now)
+		hit(target, _attack_damage_now, _attack_knockback)
 
 
 # Acerto deste lutador em `target`, de golpe ou de projétil (ex.: a bola do
 # especial): aplica o dano e enche a barra de especial de quem acertou.
-func hit(target: Fighter, damage: int) -> void:
+# `knockback` > 0 empurra o alvo nessa velocidade (px/s), para longe de quem
+# acertou, ou para o lado de `direction` (-1/+1) se ele for informado.
+func hit(target: Fighter, damage: int, knockback := 0.0, direction := 0.0) -> void:
 	target.take_damage(damage)
 	gain_special(SPECIAL_GAIN_ON_HIT)
+	if knockback > 0.0 and target.current_health > 0:
+		var push := direction
+		if push == 0.0:
+			push = signf(target.global_position.x - global_position.x)
+		if push == 0.0:
+			push = -1.0 if sprite.flip_h else 1.0
+		target.apply_knockback(push, knockback)
 
 
 func _apply_standard_size() -> void:

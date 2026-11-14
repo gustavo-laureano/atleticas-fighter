@@ -15,9 +15,81 @@
 [ext_resource type="Texture2D" uid="uid://b013d6o4yjsgh" path="res://characters/crocks/walk/1.png" id="13_606se"]
 [ext_resource type="Texture2D" uid="uid://cc76g3wuhboqa" path="res://characters/crocks/walk/2.png" id="14_u1c27"]
 [ext_resource type="Texture2D" uid="uid://cnt78odm80rco" path="res://characters/crocks/walk/3.png" id="15_op7ga"]
+[ext_resource type="Texture2D" path="res://characters/crocks/combo/1.png" id="20_combo1"]
+[ext_resource type="Texture2D" path="res://characters/crocks/combo/2.png" id="21_combo2"]
+[ext_resource type="Texture2D" path="res://characters/crocks/combo/3.png" id="22_combo3"]
+[ext_resource type="Texture2D" path="res://characters/crocks/sneak-attack/1.png" id="23_sneakatk1"]
+[ext_resource type="Texture2D" path="res://characters/crocks/special/1.png" id="31_special"]
+[ext_resource type="Texture2D" path="res://characters/crocks/special/2.png" id="32_special"]
+[ext_resource type="Texture2D" path="res://characters/crocks/special/3.png" id="33_special"]
+[ext_resource type="Texture2D" path="res://characters/crocks/special/4.png" id="34_special"]
+[ext_resource type="Texture2D" path="res://characters/crocks/special/5.png" id="35_special"]
+[ext_resource type="Texture2D" path="res://characters/crocks/special/6.png" id="36_special"]
+[ext_resource type="Texture2D" path="res://characters/crocks/special/7.png" id="37_special"]
+[ext_resource type="Texture2D" path="res://characters/crocks/special/8.png" id="38_special"]
+[ext_resource type="Texture2D" path="res://characters/crocks/hurt/1.png" id="40_hurt1"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_86ap7"]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("31_special")
+}, {
+"duration": 1.0,
+"texture": ExtResource("32_special")
+}, {
+"duration": 1.0,
+"texture": ExtResource("33_special")
+}, {
+"duration": 1.0,
+"texture": ExtResource("34_special")
+}, {
+"duration": 1.0,
+"texture": ExtResource("35_special")
+}, {
+"duration": 1.0,
+"texture": ExtResource("36_special")
+}, {
+"duration": 1.0,
+"texture": ExtResource("37_special")
+}, {
+"duration": 1.0,
+"texture": ExtResource("38_special")
+}],
+"loop": 0,
+"name": &"special",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("40_hurt1")
+}],
+"loop": 0,
+"name": &"hurt",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("20_combo1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_combo2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_combo3")
+}],
+"loop": 1,
+"name": &"combo",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("23_sneakatk1")
+}],
+"loop": 0,
+"name": &"sneak-attack",
+"speed": 5.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": ExtResource("2_die1")
